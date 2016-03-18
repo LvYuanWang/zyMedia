@@ -3,7 +3,7 @@
  * zy.media.js
  * HTML5 <video> and <audio> native player
  *
- * Copyright 2015-2016, iReader FE(掌阅书城研发--前端组)
+ * Copyright 2016, iReader FE(掌阅书城研发--前端组)
  * License: MIT
  * 
  */
@@ -45,41 +45,16 @@ zyMedia.config = {
 	enableFullscreen: true,
 	// When this player starts, it will pause other players
 	pauseOtherPlayers: true,
+	// Media duration
 	duration: 0,
-	timeAndDurationSeparator: '<span>/</span>',
+	// Sucess callback
 	success: null,
+	// Error callback
 	error: function() {}
 };
 
 
-// Get time format
-zyMedia.timeFormat = function(time, options) {
-	// Video's duration is Infinity in GiONEE(金立) device
-	if (!isFinite(time) || time < 0) {
-		time = 0;
-	}
-	// Get hours
-	var _time = options.alwaysShowHours ? [0] : [];
-	if (Math.floor(time / 3600) % 24) {
-		_time.push(Math.floor(time / 3600) % 24)
-	}
-	// Get minutes
-	_time.push(Math.floor(time / 60) % 60);
-	// Get seconds
-	_time.push(Math.floor(time % 60));
-
-	_time = _time.join(':');
-	// Fill '0'
-	if (options.timeFormat == 1) {
-		_time = _time.replace(/(:|^)([0-9])(?=:|$)/g, '$10$2')
-	}
-
-	return _time;
-
-};
-
-
-// Feature detection
+// Feature detect
 (function() {
 	var t = zyMedia.features = {};
 	var ua = window.navigator.userAgent.toLowerCase();
@@ -97,14 +72,11 @@ zyMedia.timeFormat = function(time, options) {
 	t.supportsMediaTag = typeof v.canPlayType !== 'undefined' || t.isBustedAndroid;
 
 	// Vendor for no controls bar
-	t.isVendor = /baidu/i.test(ua);
-
+	t.isVendorControls = /baidu/i.test(ua);
 	// Vendor and app for fullscreen button
 	t.isVendorFullscreen = /micromessenger|weibo/i.test(ua);
-
-	// Vendor for autoplay be disable, iOS device and 昂达
+	// Vendor for autoplay be disabled, iOS device and 昂达
 	t.isVendorAutoplay = /v819mini/i.test(ua) || t.isiOS;
-
 	// iOS
 	t.hasSemiNativeFullScreen = typeof v.webkitEnterFullscreen !== 'undefined';
 	// W3C
@@ -114,14 +86,6 @@ zyMedia.timeFormat = function(time, options) {
 	t.hasMozNativeFullScreen = typeof v.mozRequestFullScreen !== 'undefined';
 	t.hasMsNativeFullScreen = typeof v.msRequestFullscreen !== 'undefined';
 	t.hasTrueNativeFullScreen = t.hasWebkitNativeFullScreen || t.hasMozNativeFullScreen || t.hasMsNativeFullScreen;
-	t.nativeFullScreenEnabled = t.hasTrueNativeFullScreen;
-
-	// Enabled?
-	if (t.hasMozNativeFullScreen) {
-		t.nativeFullScreenEnabled = document.mozFullScreenEnabled
-	} else if (t.hasMsNativeFullScreen) {
-		t.nativeFullScreenEnabled = document.msFullscreenEnabled
-	}
 
 	if (t.isChrome) {
 		t.hasSemiNativeFullScreen = false
@@ -169,6 +133,31 @@ zyMedia.timeFormat = function(time, options) {
 
 })();
 
+
+// Get time format
+zyMedia.timeFormat = function(time, options) {
+	// Video's duration is Infinity in GiONEE(金立) device
+	if (!isFinite(time) || time < 0) {
+		time = 0;
+	}
+	// Get hours
+	var _time = options.alwaysShowHours ? [0] : [];
+	if (Math.floor(time / 3600) % 24) {
+		_time.push(Math.floor(time / 3600) % 24)
+	}
+	// Get minutes
+	_time.push(Math.floor(time / 60) % 60);
+	// Get seconds
+	_time.push(Math.floor(time % 60));
+
+	_time = _time.join(':');
+	// Fill '0'
+	if (options.timeFormat == 1) {
+		_time = _time.replace(/(:|^)([0-9])(?=:|$)/g, '$10$2')
+	}
+
+	return _time
+};
 
 
 /*
@@ -458,11 +447,11 @@ zyMedia.mediaShim = {
 			}
 
 			// Use native controls in iOS, and Android
-			if (zyMedia.features.isiOS && (t.options.nativeControls || zyMedia.features.isVendor)) {
+			if (zyMedia.features.isiOS && (t.options.nativeControls || zyMedia.features.isVendorControls)) {
 				// Add controls and stop
 				t.$media.attr('controls', 'controls');
 
-			} else if (zyMedia.features.isAndroid && (t.options.nativeControls || zyMedia.features.isVendor)) {
+			} else if (zyMedia.features.isAndroid && (t.options.nativeControls || zyMedia.features.isVendorControls)) {
 				t.$media.attr('controls', 'controls');
 			} else {
 				// Create mediaShim shim
@@ -535,7 +524,7 @@ zyMedia.mediaShim = {
 				t.created = true;
 			}
 			// Build container
-			t.container = t.$media.parent();
+			t.container = t.$media.parent().css('overflow', 'hidden');
 			// Preset container's height on aspectRation
 			if (t.isVideo) {
 				t.container.css('height', t.container.width() / t.options.aspectRation);
@@ -798,7 +787,7 @@ zyMedia.mediaShim = {
 				if (media.isUserClick) {
 					bigPlay.hide();
 					loading.show();
-					controls.find('.zy_time_buffering').hide();
+					t.buffering.hide();
 					error.hide()
 				}
 			}, false);
@@ -806,19 +795,19 @@ zyMedia.mediaShim = {
 			media.addEventListener('playing', function() {
 				bigPlay.hide();
 				loading.hide();
-				controls.find('.zy_time_buffering').hide();
+				t.buffering.hide();
 				error.hide();
 			}, false);
 
 			media.addEventListener('seeking', function() {
 				loading.show();
 				bigPlay.hide();
-				controls.find('.zy_time_buffering').show();
+				t.buffering.show();
 			}, false);
 
 			media.addEventListener('seeked', function() {
 				loading.hide();
-				controls.find('.zy_time_buffering').hide();
+				t.buffering.hide();
 			}, false);
 
 			media.addEventListener('pause', function() {
@@ -830,7 +819,7 @@ zyMedia.mediaShim = {
 			media.addEventListener('waiting', function() {
 				loading.show();
 				bigPlay.hide();
-				controls.find('.zy_time_buffering').show();
+				t.buffering.show();
 			}, false);
 
 			// Don't listen to 'loadeddata' and 'canplay', 
@@ -843,7 +832,7 @@ zyMedia.mediaShim = {
 				bigPlay.show();
 				media.pause();
 				error.show();
-				controls.find('.zy_time_buffering').hide();
+				t.buffering.hide();
 			}, false);
 
 		},
@@ -950,11 +939,11 @@ zyMedia.mediaShim = {
 
 
 	$.extend(zyMedia.MediaPlayer.prototype, {
-		// PLAY/pause button
+		// Play/pause button
 		buildplaypause: function(player, controls, media) {
 			var t = this;
 			var play =
-				$('<div class="zy_playpause_button zy_play" ></div>')
+				$('<div class="zy_playpause_btn zy_play" ></div>')
 				.appendTo(controls)
 				.click(function(e) {
 					e.preventDefault();
@@ -1001,26 +990,25 @@ zyMedia.mediaShim = {
 
 		// Progress/loaded bar
 		buildprogress: function(player, controls, media) {
-			$('<div class="zy_time_rail">' +
-					'<span class="zy_time_total zy_time_slider">' +
-					'<span class="zy_time_buffering"></span>' +
-					'<span class="zy_time_loaded"></span>' +
-					'<span class="zy_time_current"></span>' +
-					'<span class="zy_time_handle"></span>' +
-					'</span>' +
+			$('<div class="zy_timeline">' +
+					'<div class="zy_timeline_slider">' +
+					'<div class="zy_timeline_buffering" style="display:none"></div>' +
+					'<div class="zy_timeline_loaded"></div>' +
+					'<div class="zy_timeline_current"></div>' +
+					'<div class="zy_timeline_handle"></div>' +
+					'</div>' +
 					'</div>')
 				.insertBefore(controls.find('.zy_time'));
-			controls.find('.zy_time_buffering').hide();
 
 			var t = this;
-			var total = controls.find('.zy_time_total');
-			var loaded = controls.find('.zy_time_loaded');
-			var current = controls.find('.zy_time_current');
-			var handle = controls.find('.zy_time_handle');
-			var slider = controls.find('.zy_time_slider');
+			t.slider = controls.find('.zy_timeline_slider');
+			t.loaded = controls.find('.zy_timeline_loaded');
+			t.current = controls.find('.zy_timeline_current');
+			t.handle = controls.find('.zy_timeline_handle');
+			t.buffering = controls.find('.zy_timeline_buffering');
 			var handleMouseMove = function(e) {
-				var offset = total.offset(),
-					width = total.width(),
+				var offset = t.slider.offset(),
+					width = t.slider.width(),
 					percentage = 0,
 					newTime = 0,
 					pos = 0,
@@ -1056,14 +1044,8 @@ zyMedia.mediaShim = {
 			var mouseIsOver = false;
 			var startedPaused = false;
 
-			// Store for later use
-			t.loaded = loaded;
-			t.total = total;
-			t.current = current;
-			t.handle = handle;
-
 			// Handle clicks
-			total
+			t.slider
 				.on('mousedown touchstart', function(e) {
 					// Only handle left clicks or touch
 					if (e.which === 1 || e.which === 0) {
@@ -1129,11 +1111,11 @@ zyMedia.mediaShim = {
 			// Finally update the progress bar
 			if (percent !== null) {
 				percent = Math.min(1, Math.max(0, percent));
-				t.loaded.width(t.total.width() * percent);
+				t.loaded.width(t.slider.width() * percent);
 				// Adjust progress bar when pause change from playing (魅族)
 				t.media.addEventListener('pause', function() {
 					setTimeout(function() {
-						t.loaded.width(t.total.width() * percent);
+						t.loaded.width(t.slider.width() * percent);
 						t.setCurrentRail()
 					}, 300)
 				});
@@ -1145,7 +1127,7 @@ zyMedia.mediaShim = {
 
 			if (t.media.currentTime !== undefined && t.media.duration) {
 				// Update bar and handle
-				var newWidth = Math.round(t.total.width() * t.media.currentTime / t.media.duration);
+				var newWidth = Math.round(t.slider.width() * t.media.currentTime / t.media.duration);
 				var handlePos = newWidth - Math.round(t.handle.width() / 2);
 				t.current.width(newWidth);
 				t.handle.css('left', handlePos);
@@ -1176,11 +1158,10 @@ zyMedia.mediaShim = {
 			var t = this;
 
 			if (controls.children().last().find('.zy_currenttime').length > 0) {
-				$(t.options.timeAndDurationSeparator +
+				controls.find('.zy_time').append('/' +
 						'<span class="zy_duration">' +
 						zyMedia.timeFormat(t.options.duration, t.options) +
 						'</span>')
-					.appendTo(controls.find('.zy_time'));
 			} else {
 				// Add class to current time
 				controls.find('.zy_currenttime').parent().addClass('zy_currenttime_container');
@@ -1228,8 +1209,6 @@ zyMedia.mediaShim = {
 				var func = function(e) {
 					if (player.isFullScreen) {
 						if (!zyMedia.features.isFullScreen()) {
-							// When a user presses ESC
-							// make sure to put the player back into place
 							player.exitFullScreen();
 						}
 					}
@@ -1238,7 +1217,7 @@ zyMedia.mediaShim = {
 				player.globalBind(zyMedia.features.fullScreenEventName, func);
 			}
 
-			player.fullscreenBtn = $('<div class="zy_fullscreen_button"></div>').appendTo(controls);
+			player.fullscreenBtn = $('<div class="zy_fullscreen_btn"></div>').appendTo(controls);
 
 			player.fullscreenBtn.click(function() {
 				if ((zyMedia.features.hasTrueNativeFullScreen && zyMedia.features.isFullScreen()) || player.isFullScreen) {
@@ -1267,7 +1246,7 @@ zyMedia.mediaShim = {
 			// Set it to not show scroll bars so 100% will work
 			$(document.documentElement).addClass('zy_fullscreen');
 
-			// Attempt to do true fullscreen (Safari 5.1 and Firefox Nightly only for now)
+			// Attempt to do true fullscreen
 			if (zyMedia.features.hasTrueNativeFullScreen) {
 				zyMedia.features.requestFullScreen(t.container[0]);
 			} else if (zyMedia.features.hasSemiNativeFullScreen) {
@@ -1310,7 +1289,7 @@ zyMedia.mediaShim = {
 			t.container.width(t.normalWidth).height(t.normalHeight);
 
 			t.$media.width(t.normalWidth).height(t.normalHeight);
-			t.fullscreenBtn.removeClass('zy_unfullscreen').addClass('zy_fullscreen');
+			t.fullscreenBtn.removeClass('zy_unfullscreen');
 			t.isFullScreen = false
 		}
 	});
