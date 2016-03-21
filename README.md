@@ -59,3 +59,6 @@ zyMedia是一款基于HTML5原生multimedia的、轻量级的、实现移动端�
 * iPhone4S、iPhone5C、iPhone5S、iPhone 6、iPhone 6 Plus、iPad mini、iPad
 
 * nexus 5x、SONY S39h、AMOI N828、TCL S720T、Newman、中兴V960、小辣椒LA2-L、摩托罗拉ME863、读者 i800、昂达平板 V819mini
+
+## 开源交流
+* QQ群：329474804
