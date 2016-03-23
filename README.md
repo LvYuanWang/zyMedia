@@ -1,13 +1,13 @@
 # zyMedia —— 一个轻量级媒体播放器
 
-zyMedia是一款基于HTML5原生multimedia的、轻量级的、实现移动端全平台统一UI的多媒体播放器。
+zyMedia是一款基于HTML5原生multimedia、自定义UI的多媒体播放器。
 
 已用于公司的掌阅电影和专题页。
 
 * 支持Android、iOS移动端全平台统一播放器UI
 * 支持主流移动设备及国内TOP10移动端浏览器
-* 支持多种视频、音频格式，如mp4、m3u8、oga、webm等
-* 轻量，UglifyJS压缩20KB
+* 支持多种视频、音频格式，如mp4、mp3、oga、webm等
+* 轻量，UglifyJS压缩14KB
 
 
 ## 使用说明
