@@ -10,6 +10,11 @@ zyMedia是一款基于HTML5原生multimedia、自定义UI的多媒体播放器�
 * 轻量，UglifyJS压缩14KB
 
 
+## 视频界面展示
+
+![video ui](docs/images/video_ui.png)
+
+
 ## 使用说明
 
 1. 引入依赖库，zepto或jQuery
