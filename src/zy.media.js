@@ -148,7 +148,8 @@
 
 	// Get media type from file extension
 	function getTypeFromFileExtension(url) {
-		var _ext = url.substring(url.lastIndexOf('.') + 1).toLowerCase();
+		url = url.toLowerCase().split('?')[0];
+		var _ext = url.substring(url.lastIndexOf('.') + 1);
 		var _av = /mp4|m4v|ogg|ogv|m3u8|webm|webmv|wmv|mpeg|mov/gi.test(_ext) ? 'video/' : 'audio/';
 
 		switch (_ext) {
@@ -276,10 +277,10 @@
 		var i;
 
 		// Make sure it can't be instantiated again
-		if (t.isInstantiated) {
+		if (media.isInstantiated) {
 			return
 		} else {
-			t.isInstantiated = true
+			media.isInstantiated = true
 		}
 
 		t.$media = $(media);
