@@ -7,7 +7,7 @@ zyMedia是一款基于HTML5原生multimedia、自定义UI的多媒体播放器�
 * 支持Android、iOS移动端全平台统一播放器UI
 * 支持主流移动设备及国内TOP10移动端浏览器
 * 支持多种视频、音频格式，如mp4、mp3、oga、webm等
-* 轻量，UglifyJS压缩14KB
+* 轻量，UglifyJS压缩15KB，gzip约5k
 
 
 ## 视频界面展示
@@ -17,9 +17,8 @@ zyMedia是一款基于HTML5原生multimedia、自定义UI的多媒体播放器�
 
 ## 使用说明
 
-1. 引入依赖库，zepto或jQuery
-2. 引入样式文件zy.media.css和js文件zy.media.js
-3. 输入html结构，例如视频，其中video标签的data-config属性用于设置参数，
+1. 引入样式文件zy.media.css和js文件zy.media.js
+2. 输入html结构，例如视频，其中video标签的data-config属性用于设置参数，
 ```html
 
 <div class="zy_media">
@@ -30,10 +29,11 @@ zyMedia是一款基于HTML5原生multimedia、自定义UI的多媒体播放器�
 </div>
 
 ```
-4. 绑定媒体节点，例如
+3. 绑定媒体节点，zymedia是一个全局对象，例如
 ```javascript
 
-    $('video').mediaplayer({"mediaTitle": "《疯狂动物城》--腾讯视频"});
+    zymedia('video');
+    // zymedia('video', {...参数});
 
 ```
 

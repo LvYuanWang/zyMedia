@@ -23,8 +23,9 @@
 		nativeControls: false,
 		// Autoplay
 		autoplay: false,
-		// Preload
-		preload: 'auto',
+		// Preload, not 'auto', in native app of xiaomi HM 1SW,
+		// the images does not synchronize with sound of video which is cross-domain
+		preload: 'none',
 		// Video width
 		videoWidth: '100%',
 		// Video height
@@ -63,16 +64,16 @@
 		var ua = window.navigator.userAgent.toLowerCase();
 		var v = document.createElement('video');
 
-		t.isiPhone = /iphone/i.test(ua);
-		t.isiOS = t.isiPhone || /ipad/i.test(ua);
-		t.isAndroid = /android/i.test(ua);
+		t.isiOS = /iphone|ipod|ipad/i.test(ua) && !window.MSStream;
+		t.isAndroid = /android/i.test(ua) && !window.MSStream;
 		t.isBustedAndroid = /android 2\.[12]/i.test(ua);
-		t.isChrome = /chrome/i.test(ua);
 		t.isChromium = /chromium/i.test(ua);
-		t.hasTouch = 'ontouchstart' in window;
 
+		t.hasTouch = 'ontouchstart' in window;
 		t.supportsCanPlayType = typeof v.canPlayType !== 'undefined';
 
+		// Vendor for no big Play button
+		t.isVendorBigPlay = /iphone/i.test(ua) && !window.MSStream;
 		// Vendor for no controls bar
 		t.isVendorControls = /baidu/i.test(ua);
 		// Vendor and app for fullscreen button
@@ -80,6 +81,7 @@
 		// Vendor for autoplay be disabled, iOS device and 昂达
 		t.isVendorAutoplay = /v819mini/i.test(ua) || t.isiOS;
 		// Prefix of current working browser
+
 		t.nativeFullscreenPrefix = (function() {
 			if (v.requestFullScreen) {
 				return '';
@@ -94,11 +96,8 @@
 		})();
 
 		// None-standard
-		t.hasOldNativeFullScreen = typeof v.webkitEnterFullscreen !== 'undefined';
+		t.hasOldNativeFullScreen = (t.nativeFullscreenPrefix == '-') && v.webkitEnterFullscreen;
 
-		if (t.isChrome) {
-			t.hasOldNativeFullScreen = false
-		}
 		// OS X 10.5 can't do this even if it says it can
 		if (t.hasOldNativeFullScreen && /mac os x 10_5/i.test(ua)) {
 			t.nativeFullscreenPrefix = '-';
@@ -106,6 +105,34 @@
 		}
 	})(zyMedia.features = {});
 
+
+	// Get style
+	function _css(el, property) {
+		return parseInt(el.style[property] || getComputedStyle(el, null).getPropertyValue(property))
+	}
+
+	// Has Class
+	function _hasClass(el, token) {
+		return new RegExp('(\\s|^)' + token + '(\\s|$)').test(el.className)
+	}
+
+	// Add class
+	function _addClass(el, token) {
+		if (el.classList) {
+			el.classList.add(token)
+		} else if (!_hasClass(el, token)) {
+			el.className += '' + token
+		}
+	}
+
+	// Remove class
+	function _removeClass(el, token) {
+		if (el.classList) {
+			el.classList.remove(token)
+		} else if (_hasClass(el, token)) {
+			el.className = el.className.replace(new RegExp('(\\s|^)' + token + '(\\s|$)'), ' ').replace(/^\s+|\s+$/g, '')
+		}
+	}
 
 	// Get time format
 	function timeFormat(time, options) {
@@ -130,16 +157,6 @@
 
 		return _time
 	};
-
-	// Add player ID as an event namespace so it's easier to unbind them later
-	function reBuildEvent(event, id) {
-		var _event = [];
-		event.split(' ').map(function(v) {
-			_event.push(v + '.' + id)
-		});
-
-		return _event.join(' ')
-	}
 
 	// Report whether or not the document in fullscreen mode
 	function isInFullScreenMode() {
@@ -222,8 +239,8 @@
 			});
 		} else {
 			// If <source> elements
-			for (i = 0; i < media.childNodes.length; i++) {
-				n = media.childNodes[i];
+			for (i = 0; i < media.children.length; i++) {
+				n = media.children[i];
 
 				if (n.nodeType == 1 && n.tagName.toLowerCase() == 'source') {
 					src = n.getAttribute('src');
@@ -235,7 +252,7 @@
 			}
 		}
 
-		// For Android which sadly doesn't implement the canPlayType function (always returns '')
+		// For Android which doesn't implement the canPlayType function (always returns '')
 		if (zyMedia.features.isBustedAndroid) {
 			media.canPlayType = function(type) {
 				return /video\/(mp4|m4v)/i.test(type) ? 'maybe' : ''
@@ -266,7 +283,7 @@
 	};
 
 	// Mediaplayer instance No
-	var mpIndex = 0;
+	var zymIndex = 0;
 	// Store Mediaplayer instance
 	zyMedia.players = {};
 
@@ -283,7 +300,6 @@
 			media.isInstantiated = true
 		}
 
-		t.$media = $(media);
 		t.media = media;
 
 		// Detect video or audio
@@ -298,36 +314,37 @@
 			t.options[i] = zyMedia.config[i]
 		}
 
-		for (i in option) {
-			t.options[i] = option[i]
-		}
-		// Data-config has highest priority
-		var config = t.$media.data('config');
-		for (i in config) {
-			t.options[i] = config[i]
-		}
+		try {
+			for (i in option) {
+				t.options[i] = option[i]
+			}
+			// Data-config has the highest priority
+			var config = JSON.parse(t.media.getAttribute('data-config'));
+			for (i in config) {
+				t.options[i] = config[i]
+			}
+		} catch (exp) {}
 
 		// Autoplay be disabled
 		if (t.options.autoplay) {
 			t.options.autoplay = !zyMedia.features.isVendorAutoplay
 		}
-		// Show controls bar if not video
+
 		if (!t.isVideo) {
 			t.options.alwaysShowControls = true
 		}
 
 		if (t.options.nativeControls || zyMedia.features.isVendorControls) {
 			// Use native controls
-			t.$media.attr('controls', 'controls')
+			t.media.setAttribute('controls', 'controls')
 		} else {
 			var src = t.media.getAttribute('src');
-			src = (typeof src == 'undefined' || src === null || src == '') ? null : src;
+			src = src === '' ? null : src;
 
 			if (detectType(t.media, t.options, src)) {
 				// Unique ID
-				t.id = 'mp_' + mpIndex++;
+				t.id = 'zym_' + zymIndex++;
 				zyMedia.players[t.id] = t;
-
 				t.init()
 			} else {
 				alert('不支持此' + (t.isVideo ? '视' : '音') + '频')
@@ -343,14 +360,14 @@
 
 		setPlayerSize: function(width, height) {
 			var t = this;
-			var _W = t.container.width();
-			// Container width at most
+			var _W = _css(t.container, 'width');
+			// The width is not more than container width
 			if (width > _W) {
 				t.width = _W
 			}
 
 			// Set height for video
-			if (t.isVideo && t.enableAutoSize) {
+			if (t.enableAutoSize) {
 				var nativeWidth = t.media.videoWidth;
 				var nativeHeight = t.media.videoHeight;
 				// Uniform scale
@@ -363,11 +380,8 @@
 				t.height = parseInt(_W / t.options.aspectRation)
 			}
 
-			t.container.css({
-				'width': t.width,
-				'height': t.height
-			});
-			t.$media.height(t.height)
+			t.container.style.width = t.width + 'px';
+			t.media.style.height = t.container.style.height = t.height + 'px'
 		},
 
 		showControls: function() {
@@ -376,12 +390,12 @@
 			if (t.isControlsVisible)
 				return;
 
-			t.controls.css('bottom', '0');
+			t.controls.style.bottom = 0;
 
 			if (t.options.mediaTitle) {
-				t.title.css('top', '0')
+				t.title.style.top = 0
 			}
-			// Any additional controls people might add and want to hide
+
 			t.isControlsVisible = true;
 		},
 
@@ -391,12 +405,12 @@
 			if (!t.isControlsVisible || t.options.alwaysShowControls)
 				return;
 
-			t.controls.css('bottom', '-45px');
+			t.controls.style.bottom = '-45px';
 
 			if (t.options.mediaTitle) {
-				t.title.css('top', '-35px')
+				t.title.style.top = '-35px'
 			}
-			// Hide others
+
 			t.isControlsVisible = false
 		},
 
@@ -413,7 +427,7 @@
 			var t = this;
 			var el = (e !== undefined) ? e.target : t.media;
 			var percent = null;
-			var _W = t.slider.width();
+			var _W = _css(t.slider, 'width');
 
 			// Support buffered
 			if (el.buffered && el.buffered.length > 0 && el.buffered.end && el.duration) {
@@ -431,11 +445,11 @@
 			// Update the timeline
 			if (percent !== null) {
 				percent = Math.min(1, Math.max(0, percent));
-				t.loaded.width(_W * percent);
+				t.loaded.style.width = _W * percent + 'px';
 				// Adjust when pause change from playing (魅族)
 				t.media.addEventListener('pause', function(e) {
 					setTimeout(function() {
-						t.loaded.width(_W * percent);
+						t.loaded.style.width = _W * percent + 'px';
 						t.updateTimeline(e)
 					}, 300)
 				});
@@ -444,47 +458,41 @@
 			if (t.media.currentTime !== undefined && t.media.duration) {
 				// Update bar and handle
 				var _w = Math.round(_W * t.media.currentTime / t.media.duration);
-				t.current.width(_w);
-				t.handle.css('left', _w - Math.round(t.handle.width() / 2))
+				t.current.style.width = _w + 'px';
+				t.handle.style.left = _w - Math.round(_css(t.handle, 'width') / 2) + 'px'
 			}
 		},
 
 		updateTime: function() {
 			var t = this;
-			t.currenttime.html(timeFormat(t.media.currentTime, t.options))
+			t.currentTime.innerHTML = timeFormat(t.media.currentTime, t.options);
 
 			// Duration is 1 in (读者) device
 			if (t.options.duration > 1 || t.media.duration > 1) {
-				t.durationD.html(timeFormat(t.options.duration > 1 ? t.options.duration : t.media.duration, t.options))
+				t.durationDuration.innerHTML = timeFormat(t.options.duration > 1 ? t.options.duration : t.media.duration, t.options)
 			}
 		},
 
 		enterFullScreen: function() {
 			var t = this;
 			// Store size
-			t.normalHeight = t.container.height();
-			t.normalWidth = t.container.width();
+			t.normalHeight = _css(t.container, 'height');
+			t.normalWidth = _css(t.container, 'width');
 			// Set it to not show scroll bars so 100% will work
-			$(document.documentElement).addClass('zy_fullscreen');
+			_addClass(document.documentElement, 'zy_fullscreen');
 
 			// Attempt to do true fullscreen
 			if (zyMedia.features.nativeFullscreenPrefix != '-') {
-				t.container[0][zyMedia.features.nativeFullscreenPrefix + 'RequestFullScreen']()
+				t.container[zyMedia.features.nativeFullscreenPrefix + 'RequestFullScreen']()
 			} else if (zyMedia.features.hasOldNativeFullScreen) {
 				t.media.webkitEnterFullscreen();
 				return
 			}
 
 			// Make full size
-			t.container.css({
-				width: '100%',
-				height: '100%'
-			});
-			t.$media.css({
-				width: '100%',
-				height: '100%'
-			});
-			t.fullscreenBtn.addClass('zy_unfullscreen');
+			t.media.style.width = t.container.style.width = '100%';
+			t.media.style.height = t.container.style.height = '100%';
+			_addClass(t.fullscreenBtn, 'zy_unfullscreen');
 			t.isFullScreen = true
 		},
 
@@ -498,17 +506,10 @@
 					document.webkitExitFullscreen()
 				}
 			}
-
-			$(document.documentElement).removeClass('zy_fullscreen');
-			t.container.css({
-				width: t.normalWidth,
-				height: t.normalHeight
-			});
-			t.$media.css({
-				width: t.normalWidth,
-				height: t.normalHeight
-			});
-			t.fullscreenBtn.removeClass('zy_unfullscreen');
+			_removeClass(document.documentElement, 'zy_fullscreen');
+			t.media.style.width = t.container.style.width = t.normalWidth + 'px';
+			t.media.style.height = t.container.style.height = t.normalHeight + 'px';
+			_removeClass(t.fullscreenBtn, 'zy_unfullscreen');
 			t.isFullScreen = false
 		},
 
@@ -516,19 +517,18 @@
 		buildContainer: function() {
 			var t = this;
 
-			t.container = t.$media.parent().css('overflow', 'hidden');
-			// Preset container's height on aspectRation
-			t.container
-				.css('height', t.isVideo ? t.container.width() / t.options.aspectRation : t.options.audioHeight)
-				.html('<div class="zy_wrap"></div><div class="zy_controls"></div>');
+			t.container = t.media.parentNode;
+			t.container.style.overflow = 'hidden';
+			// Preset container's height by aspectRation
+			t.container.style.height = (t.isVideo ? _css(t.container, 'width') / t.options.aspectRation : t.options.audioHeight) + 'px';
+			t.container.innerHTML = '<div class="zy_wrap"></div><div class="zy_controls"></div>' +
+				(t.options.mediaTitle ? '<div class="zy_title">' + t.options.mediaTitle + '</div>' : '');
 
-			if (t.options.mediaTitle) {
-				t.title = $('<div class="zy_title">' + t.options.mediaTitle + '</div>').appendTo(t.container)
-			}
+			t.title = t.container.querySelector('.zy_title');
 
-			t.$media.attr('preload', t.options.preload);
-			t.container.find('.zy_wrap').append(t.$media);
-			t.controls = t.container.find('.zy_controls');
+			t.media.setAttribute('preload', t.options.preload);
+			t.container.querySelector('.zy_wrap').appendChild(t.media);
+			t.controls = t.container.querySelector('.zy_controls');
 
 			if (t.isVideo) {
 				t.width = t.options.videoWidth;
@@ -544,73 +544,74 @@
 		// Play/pause button
 		buildPlaypause: function() {
 			var t = this;
-			var play =
-				$('<div class="zy_playpause_btn zy_play" ></div>')
-				.appendTo(t.controls)
-				.click(function(e) {
-					t.media.isUserClick = true;
+			var play = document.createElement('div');
+			play.className = 'zy_playpause_btn zy_play';
+			t.controls.appendChild(play);
+			play.addEventListener('click', function() {
+				t.media.isUserClick = true;
 
-					if (t.media.paused) {
-						t.media.play();
-						// Controls bar auto hide after 3s
-						if (!t.media.paused && !t.options.alwaysShowControls) {
-							t.setControlsTimer(3000)
-						}
-					} else {
-						t.media.pause()
+				if (t.media.paused) {
+					t.media.play();
+					// Controls bar auto hide after 3s
+					if (!t.media.paused && !t.options.alwaysShowControls) {
+						t.setControlsTimer(3000)
 					}
-				});
+				} else {
+					t.media.pause()
+				}
+			});
 
 			function togglePlayPause(s) {
 				if (t.media.isUserClick || t.options.autoplay) {
 					if ('play' === s) {
-						play.removeClass('zy_play').addClass('zy_pause')
+						_removeClass(play, 'zy_play');
+						_addClass(play, 'zy_pause')
 					} else {
-						play.removeClass('zy_pause').addClass('zy_play')
+						_removeClass(play, 'zy_pause');
+						_addClass(play, 'zy_play')
 					}
 				}
 			};
 
 			t.media.addEventListener('play', function() {
 				togglePlayPause('play')
-			}, false);
+			});
 
 			t.media.addEventListener('playing', function() {
 				togglePlayPause('play')
-			}, false);
+			});
 
 			t.media.addEventListener('pause', function() {
 				togglePlayPause('pse')
-			}, false);
+			});
 
 			t.media.addEventListener('paused', function() {
 				togglePlayPause('pse')
-			}, false);
+			});
 		},
 
 		// Timeline
 		buildTimeline: function() {
 			var t = this;
+			var timeline = document.createElement('div');
+			timeline.className = 'zy_timeline';
+			timeline.innerHTML = '<div class="zy_timeline_slider">' +
+				'<div class="zy_timeline_buffering" style="display:none"></div>' +
+				'<div class="zy_timeline_loaded"></div>' +
+				'<div class="zy_timeline_current"></div>' +
+				'<div class="zy_timeline_handle"></div>' +
+				'</div>';
+			t.controls.appendChild(timeline);
 
-			$('<div class="zy_timeline">' +
-					'<div class="zy_timeline_slider">' +
-					'<div class="zy_timeline_buffering" style="display:none"></div>' +
-					'<div class="zy_timeline_loaded"></div>' +
-					'<div class="zy_timeline_current"></div>' +
-					'<div class="zy_timeline_handle"></div>' +
-					'</div>' +
-					'</div>')
-				.appendTo(t.controls);
-
-			t.slider = t.controls.find('.zy_timeline_slider');
-			t.loaded = t.controls.find('.zy_timeline_loaded');
-			t.current = t.controls.find('.zy_timeline_current');
-			t.handle = t.controls.find('.zy_timeline_handle');
-			t.buffering = t.controls.find('.zy_timeline_buffering');
+			t.slider = timeline.children[0];
+			t.buffering = t.slider.children[0];
+			t.loaded = t.slider.children[1];
+			t.current = t.slider.children[2];
+			t.handle = t.slider.children[3];
 
 			var isPointerDown = false;
-			var _X = t.slider.offset().left;
-			var _W = t.slider.width();
+			var _X = t.slider.offsetLeft;
+			var _W = _css(t.slider, 'width');
 
 			var pointerMove = function(e) {
 				var _time = 0;
@@ -630,70 +631,76 @@
 					}
 
 					_time = ((x - _X) / _W) * t.media.duration;
-					// Seek to where the pointer is
+
 					if (isPointerDown && _time !== t.media.currentTime) {
 						t.media.currentTime = _time
 					}
 				}
 			};
-
 			// Handle clicks
-			t.slider
-				.on('mousedown touchstart', function(e) {
+			if (zyMedia.features.hasTouch) {
+				t.slider.addEventListener('touchstart', function(e) {
 					isPointerDown = true;
 					pointerMove(e);
-					_X = t.slider.offset().left;
-					_W = t.slider.width();
-					t.globalBind('mousemove.dur touchmove.dur', function(e) {
-						pointerMove(e)
-					});
-					t.globalBind('mouseup.dur touchend.dur', function(e) {
+					_X = t.slider.offsetLeft;
+					_W = _css(t.slider, 'width');
+					t.slider.addEventListener('touchmove', pointerMove);
+					t.slider.addEventListener('touchend', function(e) {
 						isPointerDown = false;
-						t.globalUnbind('.dur')
+						t.slider.removeEventListener('touchmove', pointerMove)
 					});
-				})
-				.on('mouseenter', function(e) {
-					t.globalBind('mousemove.dur', function(e) {
-						pointerMove(e)
-					});
-				})
-				.on('mouseleave', function(e) {
-					if (!isPointerDown) {
-						t.globalUnbind('.dur');
-					}
 				});
+			} else {
+				t.slider.addEventListener('mousedown', function(e) {
+					isPointerDown = true;
+					pointerMove(e);
+					_X = t.slider.offsetLeft;
+					_W = _css(t.slider, 'width');
+					t.slider.addEventListener('mousemove', pointerMove);
+					t.slider.addEventListener('mouseup', function(e) {
+						isPointerDown = false;
+						t.slider.addEventListener('mousemove', pointerMove)
+					});
+				});
+			}
 
-			t.media.addEventListener('progress', function(e) {
-				t.updateTimeline(e)
-			}, false);
+			t.slider.addEventListener('mouseenter', function(e) {
+				t.slider.addEventListener('mousemove', pointerMove);
+			});
+
+			t.slider.addEventListener('mouseleave', function(e) {
+				if (!isPointerDown) {
+					t.slider.removeEventListener('mousemove', pointerMove)
+				}
+			});
 
 			//4Hz ~ 66Hz, no longer than 250ms
 			t.media.addEventListener('timeupdate', function(e) {
 				t.updateTimeline(e)
-			}, false);
+			});
 		},
 
 		// Current and duration time 00:00/00:00
 		buildTime: function() {
 			var t = this;
 
-			$('<div class="zy_time">' +
-					'<span class="zy_currenttime">' +
-					timeFormat(0, t.options) +
-					'</span>/' +
-					'<span class="zy_duration">' +
-					timeFormat(t.options.duration, t.options) +
-					'</span>' +
-					'</div>')
-				.appendTo(t.controls);
+			var time = document.createElement('div');
+			time.className = 'zy_time';
+			time.innerHTML = '<span class="zy_currenttime">' +
+				timeFormat(0, t.options) +
+				'</span>/' +
+				'<span class="zy_duration">' +
+				timeFormat(t.options.duration, t.options) +
+				'</span>';
+			t.controls.appendChild(time);
 
-			t.currenttime = t.controls.find('.zy_currenttime');
-			t.durationD = t.controls.find('.zy_duration');
+			t.currentTime = time.children[0];
+			t.durationDuration = time.children[1];
 
 			//4Hz ~ 66Hz, no longer than 250ms
 			t.media.addEventListener('timeupdate', function() {
 				t.updateTime()
-			}, false);
+			});
 		},
 
 		// Fullscreen button
@@ -710,12 +717,14 @@
 					}
 				};
 
-				t.globalBind(zyMedia.features.nativeFullscreenPrefix + 'fullscreenchange', func)
+				document.addEventListener(zyMedia.features.nativeFullscreenPrefix + 'fullscreenchange', func)
 			}
 
-			t.fullscreenBtn = $('<div class="zy_fullscreen_btn"></div>').appendTo(t.controls);
+			t.fullscreenBtn = document.createElement('div');
+			t.fullscreenBtn.className = 'zy_fullscreen_btn';
+			t.controls.appendChild(t.fullscreenBtn);
 
-			t.fullscreenBtn.click(function() {
+			t.fullscreenBtn.addEventListener('click', function() {
 				if ((zyMedia.features.nativeFullscreenPrefix != '-' && isInFullScreenMode()) || t.isFullScreen) {
 					t.exitFullScreen()
 				} else {
@@ -727,95 +736,87 @@
 		// bigPlay, loading and error info
 		buildDec: function() {
 			var t = this;
-			var loading = $('<div class="dec_loading"></div>')
-				.hide() // Start out hidden
-				.appendTo(t.container);
-			var error = $('<div class="dec_error">播放异常</div>')
-				.hide() // Start out hidden
-				.appendTo(t.container);
-			// This needs to come last so it's on top
-			var bigPlay = $();
 
-			if (!zyMedia.features.isiPhone) {
-				bigPlay = $('<div class="dec_play"></div>')
-					.appendTo(t.container)
-					.on('click', function() {
-						// For some device trigger 'play' event 
-						t.media.isUserClick = true;
+			var loading = document.createElement('div');
+			loading.className = 'dec_loading';
+			loading.style.display = 'none';
+			t.container.appendChild(loading);
 
-						if (t.media.paused) {
-							t.media.play();
-							// Controls bar auto hide after 3s
-							if (!t.media.paused && !t.options.alwaysShowControls) {
-								t.setControlsTimer(3000)
-							}
-						}
-					});
+			var error = document.createElement('div');
+			error.className = 'dec_error';
+			error.style.display = 'none';
+			error.innerHTML = '播放异常';
+			t.container.appendChild(error);
+
+			var bigPlay = document.createElement('div');
+
+			if (!zyMedia.features.isVendorBigPlay) {
+				bigPlay.className = 'dec_play';
+				t.container.appendChild(bigPlay);
+				bigPlay.addEventListener('click', function() {
+					// For some device trigger 'play' event 
+					t.media.isUserClick = true;
+
+					t.media.play();
+					// Controls bar auto hide after 3s
+					if (!t.media.paused && !t.options.alwaysShowControls) {
+						t.setControlsTimer(3000)
+					}
+				});
 			}
 
-			// Show/hide big play button
 			t.media.addEventListener('play', function() {
+				// Only for user click
 				if (t.media.isUserClick) {
-					bigPlay.hide();
-					loading.show();
-					t.buffering.hide();
-					error.hide()
+					bigPlay.style.display = 'none';
+					loading.style.display = '';
+					t.buffering.style.display = 'none'
 				}
-			}, false);
+			});
 
 			t.media.addEventListener('playing', function() {
-				bigPlay.hide();
-				loading.hide();
-				t.buffering.hide();
-				error.hide();
-			}, false);
+				bigPlay.style.display = 'none';
+				loading.style.display = 'none';
+				t.buffering.style.display = 'none';
+				error.style.display = 'none';
+			});
 
 			t.media.addEventListener('seeking', function() {
-				loading.show();
-				bigPlay.hide();
-				t.buffering.show();
-			}, false);
+				loading.style.display = '';
+				bigPlay.style.display = 'none';
+				t.buffering.style.display = '';
+			});
 
 			t.media.addEventListener('seeked', function() {
-				loading.hide();
-				t.buffering.hide();
-			}, false);
+				loading.style.display = 'none';
+				t.buffering.style.display = 'none';
+			});
 
 			t.media.addEventListener('pause', function() {
-				if (!zyMedia.features.isiPhone) {
-					bigPlay.show();
-				}
-			}, false);
+				bigPlay.style.display = ''
+			});
 
 			t.media.addEventListener('waiting', function() {
-				loading.show();
-				bigPlay.hide();
-				t.buffering.show();
-			}, false);
+				loading.style.display = '';
+				bigPlay.style.display = 'none';
+				t.buffering.style.display = '';
+			});
 
 			// Don't listen to 'loadeddata' and 'canplay', 
 			// some Android device can't fire 'canplay' or irregular working when use 'createEvent' to trigger 'canplay' (读者i800)
 
 			// Error handling
 			t.media.addEventListener('error', function(e) {
-				loading.hide();
-				bigPlay.show();
+				loading.style.display = 'none';
+				bigPlay.style.display = '';
+				t.buffering.style.display = 'none';
 				t.media.pause();
-				error.show();
-				t.buffering.hide();
+				error.style.display = '';
 
 				if (typeof t.options.error == 'function') {
 					t.options.error(e);
 				}
-			}, false);
-		},
-
-		globalBind: function(event, callback) {
-			$(document).on(reBuildEvent(event, this.id), callback)
-		},
-
-		globalUnbind: function(event, callback) {
-			$(document).off(reBuildEvent(event, this.id), callback)
+			});
 		},
 
 		init: function() {
@@ -851,7 +852,7 @@
 								t.setControlsTimer(3000)
 							}
 						}
-					}, false);
+					});
 				} else {
 					// Click to play/pause
 					t.media.addEventListener('click', function() {
@@ -860,29 +861,24 @@
 						} else {
 							t.media.pause()
 						}
-					}, false);
+					});
 
 					// Show/hide controls
-					t.container
-						.on('mouseenter', function() {
-							t.showControls();
+					t.container.addEventListener('mouseenter', function() {
+						t.showControls();
 
-							if (!t.options.alwaysShowControls) {
-								t.setControlsTimer(3000)
-							}
-						})
-						.on('mousemove', function() {
-							t.showControls();
+						if (!t.options.alwaysShowControls) {
+							t.setControlsTimer(3000)
+						}
+					});
 
-							if (!t.options.alwaysShowControls) {
-								t.setControlsTimer(3000)
-							}
-						})
-						.on('mouseleave', function() {
-							if (!t.media.paused && !t.options.alwaysShowControls) {
-								t.setControlsTimer(3000)
-							}
-						});
+					t.container.addEventListener('mousemove', function() {
+						t.showControls();
+
+						if (!t.options.alwaysShowControls) {
+							t.setControlsTimer(3000)
+						}
+					});
 				}
 
 				if (t.options.hideVideoControlsOnLoad) {
@@ -898,23 +894,24 @@
 							}
 						}, 50)
 					}
-				}, false);
-
-				t.media.addEventListener('play', function() {
-					var p;
-
-					for (var i in zyMedia.players) {
-						p = zyMedia.players[i];
-
-						if (p.id != t.id && t.options.pauseOtherPlayers && !p.paused && !p.ended) {
-							try {
-								p.media.pause()
-							} catch (exp) {}
-						}
-					}
-				}, false);
+				});
 
 			}
+
+			t.media.addEventListener('play', function() {
+				var p;
+
+				for (var i in zyMedia.players) {
+					p = zyMedia.players[i];
+
+					if (p.id != t.id && t.options.pauseOtherPlayers && !p.paused && !p.ended) {
+						try {
+							p.media.pause()
+						} catch (exp) {}
+					}
+				}
+			});
+
 
 			// Adjust controls when orientation change, 500ms for Sumsung tablet
 			window.addEventListener('orientationchange', function() {
@@ -926,24 +923,23 @@
 			// Ended for all
 			t.media.addEventListener('ended', function(e) {
 				if (t.options.autoRewind) {
-					try {
-						t.media.currentTime = 0;
-						// Fixing an Android stock browser bug, where "seeked" isn't fired correctly after ending the video and jumping to the beginning
+					t.media.currentTime = 0;
+					// Fixing an Android stock browser bug, where "seeked" isn't fired correctly after ending the video and jumping to the beginning
+					if (t.isVideo) {
 						setTimeout(function() {
-							$(t.container).find('.dec_loading').hide()
+							t.container.querySelector('.dec_loading').style.display = 'none'
 						}, 20);
-					} catch (exp) {}
+					}
 				}
 
 				t.media.pause();
 				t.updateTimeline(e)
-			}, false);
+			});
 
 			t.media.addEventListener('loadedmetadata', function(e) {
 				t.updateTime()
-			}, false);
+			});
 
-			// Force autoplay for HTML5
 			if (t.options.autoplay) {
 				t.media.isUserClick = false;
 				t.media.play()
@@ -957,12 +953,16 @@
 	};
 
 
-	$.fn.mediaplayer = function(options) {
-		this.each(function() {
-			new zyMedia.MediaPlayer(this, options)
-		});
-		return this
-	};
+	// String or node
+	window.zymedia = function(selector, options) {
+		if (typeof selector === 'string') {
+			[].every.call(document.querySelectorAll(selector), function(el) {
+				new zyMedia.MediaPlayer(el, options)
+			});
+		} else {
+			new zyMedia.MediaPlayer(selector, options)
+		}
+	}
 
 
 })()
