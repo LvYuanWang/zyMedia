@@ -36,8 +36,8 @@
 		audioWidth: '100%',
 		// Audio height
 		audioHeight: 44,
-		// Rewind to beginning when media ends
-		autoRewind: true,
+		// AutoLoop, true for infinite loop, false for rewind to beginning when media ends
+		autoLoop: false,
 		// Time format to show. Default 1 for 'mm:ss', 2 for 'm:s'
 		timeFormatType: 1,
 		// Forces the hour marker (##:00:00)
@@ -920,19 +920,22 @@
 				}, 500)
 			});
 
-			// Ended for all
 			t.media.addEventListener('ended', function(e) {
-				if (t.options.autoRewind) {
-					t.media.currentTime = 0;
+				t.media.currentTime = 0;
+
+				if (t.options.autoLoop) {
+					t.media.play()
+				} else {
 					// Fixing an Android stock browser bug, where "seeked" isn't fired correctly after ending the video and jumping to the beginning
 					if (t.isVideo) {
 						setTimeout(function() {
 							t.container.querySelector('.dec_loading').style.display = 'none'
-						}, 20);
+						}, 20)
 					}
+
+					t.media.pause()
 				}
 
-				t.media.pause();
 				t.updateTimeline(e)
 			});
 
