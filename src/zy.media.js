@@ -959,7 +959,7 @@
 	// String or node
 	window.zymedia = function(selector, options) {
 		if (typeof selector === 'string') {
-			[].every.call(document.querySelectorAll(selector), function(el) {
+			[].forEach.call(document.querySelectorAll(selector), function(el) {
 				new zyMedia.MediaPlayer(el, options)
 			});
 		} else {
