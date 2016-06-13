@@ -478,8 +478,6 @@
 			// Store size
 			t.normalHeight = _css(t.container, 'height');
 			t.normalWidth = _css(t.container, 'width');
-			// Set it to not show scroll bars so 100% will work
-			_addClass(document.documentElement, 'zy_fullscreen');
 
 			// Attempt to do true fullscreen
 			if (zyMedia.features.nativeFullscreenPrefix != '-') {
@@ -488,6 +486,9 @@
 				t.media.webkitEnterFullscreen();
 				return
 			}
+
+			// Set it to not show scroll bars so 100% will work
+			_addClass(document.documentElement, 'zy_fullscreen');
 
 			// Make full size
 			t.media.style.width = t.container.style.width = '100%';
