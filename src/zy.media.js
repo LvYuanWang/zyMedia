@@ -447,12 +447,12 @@
 				percent = Math.min(1, Math.max(0, percent));
 				t.loaded.style.width = _W * percent + 'px';
 				// Adjust when pause change from playing (魅族)
-				t.media.addEventListener('pause', function(e) {
+				if(t.media.paused) {
 					setTimeout(function() {
 						t.loaded.style.width = _W * percent + 'px';
-						t.updateTimeline(e)
+						t.updateTimeline()
 					}, 300)
-				});
+				};
 			}
 
 			if (t.media.currentTime !== undefined && t.media.duration) {
