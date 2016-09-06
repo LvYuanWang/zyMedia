@@ -447,7 +447,7 @@
 				percent = Math.min(1, Math.max(0, percent));
 				t.loaded.style.width = _W * percent + 'px';
 				// Adjust when pause change from playing (魅族)
-				if(t.media.paused) {
+				if (t.media.paused) {
 					setTimeout(function() {
 						t.loaded.style.width = _W * percent + 'px';
 						t.updateTimeline()
@@ -613,6 +613,7 @@
 			var isPointerDown = false;
 			var _X = t.slider.offsetLeft;
 			var _W = _css(t.slider, 'width');
+			var _W_HANDLE_HALF = _css(t.handle, 'width') / 2;
 
 			var pointerMove = function(e) {
 				var _time = 0;
@@ -631,7 +632,12 @@
 						x = _W + _X
 					}
 
+					// Update handle element position 
+					t.handle.style.left = x - _W_HANDLE_HALF - _X + 'px';
+
 					_time = ((x - _X) / _W) * t.media.duration;
+					// Update currentTime element value
+					t.currentTime.innerHTML = timeFormat(t.media.currentTime, t.options);
 
 					if (isPointerDown && _time !== t.media.currentTime) {
 						t.media.currentTime = _time
