@@ -6,6 +6,7 @@ zyMedia是一款基于HTML5原生multimedia、自定义UI的多媒体播放器�
 
 * 支持Android、iOS移动端全平台统一播放器UI
 * 支持主流移动设备及国内TOP10移动端浏览器
+（机型和浏览器版本更新较快，欢迎提issue，方便请标注下机型和环境，比如客户端版本（客户端内打开），浏览器默认的navigator.userAgent（浏览器打开））
 * 支持多种视频、音频格式，如mp4、mp3、oga、webm等
 * 轻量，UglifyJS压缩15KB，gzip约5k
 
@@ -29,7 +30,7 @@ zyMedia是一款基于HTML5原生multimedia、自定义UI的多媒体播放器�
 </div>
 
 ```
-3. 绑定媒体节点，zymedia是一个全局对象，例如
+3. 绑定媒体节点，zymedia是一个全局对象，可重复调用，不返回视频实例，需要的话建议直接获取视频和监听相应事件，第二个参数是用于批量设置视频参数，示例
 ```javascript
 
     zymedia('video');
@@ -126,6 +127,29 @@ zyMedia是一款基于HTML5原生multimedia、自定义UI的多媒体播放器�
 * iPhone4S、iPhone5C、iPhone5S、iPhone 6、iPhone 6 Plus、iPad mini、iPad
 
 * nexus 5x、SONY S39h、AMOI N828、TCL S720T、Newman、中兴V960、小辣椒LA2-L、摩托罗拉ME863、读者 i800、昂达平板 V819mini
+
+
+## 常见问题
+
+* autoplay自动播放受限（preload类似）
+
+	据说Android4+和iOS6+开始，禁用了非用户行为触发autoplay，chrome可以在flags里启用“停用媒体播放的手势要求”
+
+	[2016.11.17 苹果开发者官网](https://developer.apple.com/library/content/documentation/AudioVideo/Conceptual/Using_HTML5_Audio_Video/AudioandVideoTagBasics/AudioandVideoTagBasics.html#//apple_ref/doc/uid/TP40009523-CH2-SW8)的解释是：
+
+	> Warning: To prevent unsolicited downloads over cellular networks at the user’s expense, embedded media cannot be played automatically in Safari on iOS—the user always initiates playback.
+
+
+* 全屏播放受限
+
+	插件的全屏按钮只是触发浏览器（或客户端浏览器内核）全屏事件，是否能全屏要浏览器或客户端自身实现。
+
+* 黑边
+
+	通常是poster图的尺寸比例和视频尺寸比例不一致，如果不能自己裁剪图的话，可以把poster图单拿出来，盖在视频上。
+
+
+
 
 ## 开源交流
 * QQ群：329474804
