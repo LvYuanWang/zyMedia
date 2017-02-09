@@ -3,7 +3,7 @@
  * zy.media.js
  * HTML5 <video> and <audio> native player
  *
- * Copyright 2016, iReader FE(掌阅书城研发--前端组)
+ * Copyright 2016-2017, iReader FE(掌阅书城研发--前端组)
  * License: MIT
  * 
  */
@@ -50,6 +50,8 @@
 		enableFullscreen: true,
 		// When this player starts, it will pause other players
 		pauseOtherPlayers: true,
+		// When page's visibilityState is hidden, pause all media
+		enableVisibilityState: true,
 		// Media duration
 		duration: 0,
 		// Sucess callback
@@ -94,6 +96,17 @@
 			}
 			return '-'
 		})();
+
+		if (typeof document.visibilityState != 'undefined') {
+			t.vChange = 'visibilitychange';
+			t.vState = 'visibilityState'
+		} else if (typeof document.webkitVisibilityState != 'undefined') {
+			t.vChange = 'webkitvisibilitychange';
+			t.vState = 'webkitVisibilityState'
+		} else {
+			t.vChange = '';
+			t.vState = ''
+		}
 
 		// None-standard
 		t.hasOldNativeFullScreen = (t.nativeFullscreenPrefix == '-') && v.webkitEnterFullscreen;
@@ -268,11 +281,11 @@
 		if (zyMedia.features.supportsCanPlayType) {
 			for (i = 0; i < mediaFiles.length; i++) {
 				// Normal detect
-				if (mediaFiles[i].type == "video/m3u8" || media.canPlayType(mediaFiles[i].type).replace(/no/, '') !== ''
+				if (mediaFiles[i].type == "video/m3u8" || media.canPlayType(mediaFiles[i].type).replace(/no/, '') !== '' ||
 					// For Mac/Safari 5.0.3 which answers '' to canPlayType('audio/mp3') but 'maybe' to canPlayType('audio/mpeg')
-					|| media.canPlayType(mediaFiles[i].type.replace(/mp3/, 'mpeg')).replace(/no/, '') !== ''
+					media.canPlayType(mediaFiles[i].type.replace(/mp3/, 'mpeg')).replace(/no/, '') !== '' ||
 					// For m4a supported by detecting mp4 support
-					|| media.canPlayType(mediaFiles[i].type.replace(/m4a/, 'mp4')).replace(/no/, '') !== '') {
+					media.canPlayType(mediaFiles[i].type.replace(/m4a/, 'mp4')).replace(/no/, '') !== '') {
 					isCanPlay = true;
 					break
 				}
@@ -919,6 +932,22 @@
 				}
 			});
 
+			// Pause all media when page's visibilityState is hidden
+			if (t.options.enableVisibilityState && zyMedia.features.vChange) {
+				document.addEventListener(zyMedia.features.vChange, function() {
+					if (document[zyMedia.features.vState] == 'hidden') {
+						// 100ms time for switching between app's webviews
+						setTimeout(function() {
+							[].forEach.call(document.querySelectorAll('video, audio'), function(el) {
+								el.pause()
+							})
+						}, 100)
+					}
+				});
+
+				// Only one times for binding zyMedia.features.vChange
+				zyMedia.features.vChange = ''
+			}
 
 			// Adjust controls when orientation change, 500ms for Sumsung tablet
 			window.addEventListener('orientationchange', function() {

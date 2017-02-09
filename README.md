@@ -90,6 +90,9 @@ zyMedia是一款基于HTML5原生multimedia、自定义UI的多媒体播放器�
 * pauseOtherPlayers: true<br>
 是否播放唯一，默认唯一，播放时将暂停其他播放实例，false为不唯一
 
+* enableVisibilityState: true,
+是否页面不可见时暂停当前所有播放，默认暂停
+
 * duration: 0<br>
 指定媒体时长，默认0
 
