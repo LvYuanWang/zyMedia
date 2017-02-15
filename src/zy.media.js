@@ -374,10 +374,6 @@
 		setPlayerSize: function(width, height) {
 			var t = this;
 			var _W = _css(t.container, 'width');
-			// The width is not more than container width
-			if (width > _W) {
-				t.width = _W
-			}
 
 			// Set height for video
 			if (t.enableAutoSize) {
@@ -389,11 +385,16 @@
 						t.options.aspectRation = nativeWidth / nativeHeight
 					}
 				}
-
-				t.height = parseInt(_W / t.options.aspectRation)
+				t.width = _W
+			} else if (width > _W || width == '100%') {
+				t.width = _W
 			}
 
-			t.container.style.width = t.width + 'px';
+			if (height == 'auto') {
+				t.height = parseInt(t.width / t.options.aspectRation)
+			}
+
+			t.media.style.width = t.container.style.width = t.width + 'px';
 			t.media.style.height = t.container.style.height = t.height + 'px'
 		},
 
@@ -488,10 +489,6 @@
 
 		enterFullScreen: function() {
 			var t = this;
-			// Store size
-			t.normalHeight = _css(t.container, 'height');
-			t.normalWidth = _css(t.container, 'width');
-
 			// Attempt to do true fullscreen
 			if (zyMedia.features.nativeFullscreenPrefix != '-') {
 				t.container[zyMedia.features.nativeFullscreenPrefix + 'RequestFullScreen']()
@@ -521,8 +518,8 @@
 				}
 			}
 			_removeClass(document.documentElement, 'zy_fullscreen');
-			t.media.style.width = t.container.style.width = t.normalWidth + 'px';
-			t.media.style.height = t.container.style.height = t.normalHeight + 'px';
+			t.media.style.width = t.container.style.width = t.width + 'px';
+			t.media.style.height = t.container.style.height = t.height + 'px';
 			_removeClass(t.fullscreenBtn, 'zy_unfullscreen');
 			t.isFullScreen = false
 		},
@@ -559,7 +556,7 @@
 		buildPlaypause: function() {
 			var t = this;
 			var play = document.createElement('div');
-			play.className = 'zy_playpause_btn zy_play';
+			play.className = 'zy_playpause_btn_play';
 			t.controls.appendChild(play);
 			play.addEventListener('click', function() {
 				t.media.isUserClick = true;
@@ -578,11 +575,9 @@
 			function togglePlayPause(s) {
 				if (t.media.isUserClick || t.options.autoplay) {
 					if ('play' === s) {
-						_removeClass(play, 'zy_play');
-						_addClass(play, 'zy_pause')
+						play.className = 'zy_playpause_btn_pause'
 					} else {
-						_removeClass(play, 'zy_pause');
-						_addClass(play, 'zy_play')
+						play.className = 'zy_playpause_btn_play'
 					}
 				}
 			};

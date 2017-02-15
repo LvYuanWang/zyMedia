@@ -30,10 +30,10 @@ body { margin: 0 }
 .zy_controls { height: 44px; background: rgba(0, 0, 0, .55); position: absolute; left: 0; right: 0; bottom: 0; -webkit-transition: bottom .5s; transition: bottom .5s; display: -webkit-box; display: box; display: -webkit-flex; display: flex }
 
 /* 播放、暂停按钮 */
-.zy_playpause_btn { width: 26px; height: 30px; margin-right: 4px; padding: 13px 0 0 14px; position: relative }
-.zy_play::before { width: 0; height: 0; content: ''; border-color: transparent transparent transparent #cbcbcb; border-width: 8px 12px; border-style: solid; display: block }
-.zy_pause::before, .zy_pause::after { width: 3px; height: 14px; content: ''; background: #cbcbcb; position: absolute; top: 13px; left: 14px }
-.zy_pause::after { left: 22px }
+.zy_playpause_btn_play, .zy_playpause_btn_pause { width: 26px; height: 30px; margin-right: 4px; padding: 13px 0 0 14px; position: relative }
+.zy_playpause_btn_play::before { width: 0; height: 0; content: ''; border-color: transparent transparent transparent #cbcbcb; border-width: 8px 12px; border-style: solid; position: absolute; top: 13px; left: 15px }
+.zy_playpause_btn_pause::before, .zy_playpause_btn_pause::after { width: 3px; height: 14px; content: ''; background: #cbcbcb; position: absolute; top: 14px; left: 14px }
+.zy_playpause_btn_pause::after { left: 22px }
 
 /* 时间线操作区 */
 .zy_timeline { margin-right: 10px; -webkit-box-flex: 1; -webkit-flex: 1 1 auto; flex: 1 1 auto }
