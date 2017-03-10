@@ -373,10 +373,14 @@
 
 		setPlayerSize: function(width, height) {
 			var t = this;
-			var _W = _css(t.container, 'width');
 
-			// Set height for video
-			if (t.enableAutoSize) {
+			// Set t.width
+			if (width == undefined || width == '100%') {
+				t.width = _css(t.container, 'width')
+			}
+
+			// Set t.height
+			if (height == undefined || height == 'auto') {
 				var nativeWidth = t.media.videoWidth;
 				var nativeHeight = t.media.videoHeight;
 				// Uniform scale
@@ -385,16 +389,10 @@
 						t.options.aspectRation = nativeWidth / nativeHeight
 					}
 				}
-				t.width = _W
-			} else if (width > _W || width == '100%') {
-				t.width = _W
-			}
-
-			if (height == 'auto') {
 				t.height = parseInt(t.width / t.options.aspectRation)
 			}
 
-			t.media.style.width = t.container.style.width = t.width + 'px';
+			t.media.style.width = t.width + 'px';
 			t.media.style.height = t.container.style.height = t.height + 'px'
 		},
 
@@ -518,7 +516,8 @@
 				}
 			}
 			_removeClass(document.documentElement, 'zy_fullscreen');
-			t.media.style.width = t.container.style.width = t.width + 'px';
+			t.media.style.width = t.width + 'px';
+			t.container.style.width = '';
 			t.media.style.height = t.container.style.height = t.height + 'px';
 			_removeClass(t.fullscreenBtn, 'zy_unfullscreen');
 			t.isFullScreen = false
