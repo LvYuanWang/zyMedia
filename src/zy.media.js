@@ -66,22 +66,18 @@
 		var ua = window.navigator.userAgent.toLowerCase();
 		var v = document.createElement('video');
 
-		t.isiOS = /iphone|ipod|ipad/i.test(ua) && !window.MSStream;
-		t.isAndroid = /android/i.test(ua) && !window.MSStream;
 		t.isBustedAndroid = /android 2\.[12]/i.test(ua);
 		t.isChromium = /chromium/i.test(ua);
 
 		t.hasTouch = 'ontouchstart' in window;
 		t.supportsCanPlayType = typeof v.canPlayType !== 'undefined';
 
+		// Detect playsinline
+		t.isPlaysInline = matchMedia('(-webkit-video-playable-inline)').matches;
 		// Vendor for no big Play button
 		t.isVendorBigPlay = /iphone/i.test(ua) && !window.MSStream;
 		// Vendor for no controls bar
 		t.isVendorControls = /baidu/i.test(ua);
-		// Vendor and app for fullscreen button
-		t.isVendorFullscreen = /micromessenger|weibo/i.test(ua);
-		// Vendor for autoplay be disabled, iOS device and 昂达
-		t.isVendorAutoplay = /v819mini/i.test(ua) || t.isiOS;
 		// Prefix of current working browser
 
 		t.nativeFullscreenPrefix = (function() {
@@ -537,6 +533,10 @@
 			t.title = t.container.querySelector('.zy_title');
 
 			t.media.setAttribute('preload', t.options.preload);
+			// iOS's playsinline, https://webkit.org/blog/6784/new-video-policies-for-ios/
+			if (t.isPlaysInline) {
+				t.media.setAttribute('playsinline', '')
+			}
 			t.container.querySelector('.zy_wrap').appendChild(t.media);
 			t.controls = t.container.querySelector('.zy_controls');
 
@@ -838,7 +838,7 @@
 
 			// Build
 			var batch = ['Container', 'Playpause', 'Timeline', 'Time'];
-			if (t.options.enableFullscreen && !zyMedia.features.isVendorFullscreen && t.isVideo) {
+			if (t.options.enableFullscreen && t.isVideo) {
 				batch.push('Fullscreen')
 			}
 
