@@ -2,9 +2,9 @@
 
 zyMedia是一款基于HTML5原生multimedia、自定义UI的多媒体播放器。
 
-已用于公司的掌阅电影和专题页。
+已用于公司的各非本地化产品线。
 
-* 支持Android、iOS移动端全平台统一播放器UI
+* 支持Android、iOS移动端平台
 * 支持主流移动设备及国内TOP10移动端浏览器
 （机型和浏览器版本更新较快，欢迎提issue，方便请标注下机型和环境，比如客户端版本（客户端内打开），浏览器默认的navigator.userAgent（浏览器打开））
 * 支持多种视频、音频格式，如mp4、mp3、oga、webm等
@@ -90,7 +90,7 @@ zyMedia是一款基于HTML5原生multimedia、自定义UI的多媒体播放器�
 * pauseOtherPlayers: true<br>
 是否播放唯一，默认唯一，播放时将暂停其他播放实例，false为不唯一
 
-* enableVisibilityState: true,
+* enableVisibilityState: true,<br>
 是否页面不可见时暂停当前所有播放，默认暂停
 
 * duration: 0<br>
@@ -127,7 +127,7 @@ zyMedia是一款基于HTML5原生multimedia、自定义UI的多媒体播放器�
 
 * 金立v182、GioNEE GN9000L、GioNEE GN9001L
 
-* iPhone4S、iPhone5C、iPhone5S、iPhone 6、iPhone 6 Plus、iPad mini、iPad
+* iPhone4S、iPhone5C、iPhone5S、iPhone 6、iPhone 6 Plus、iPhone 7 Plus, iPad mini、iPad
 
 * nexus 5x、SONY S39h、AMOI N828、TCL S720T、Newman、中兴V960、小辣椒LA2-L、摩托罗拉ME863、读者 i800、昂达平板 V819mini
 
@@ -136,16 +136,17 @@ zyMedia是一款基于HTML5原生multimedia、自定义UI的多媒体播放器�
 
 * autoplay自动播放受限（preload类似）
 
-	据说Android4+和iOS6+开始，禁用了非用户行为触发autoplay，chrome可以在flags里启用“停用媒体播放的手势要求”
+	据说Android4+和iOS6 - 9开始，禁用了非用户行为触发autoplay，chrome可以在flags里启用“停用媒体播放的手势要求”
 
 	[2016.11.17 苹果开发者官网](https://developer.apple.com/library/content/documentation/AudioVideo/Conceptual/Using_HTML5_Audio_Video/AudioandVideoTagBasics/AudioandVideoTagBasics.html#//apple_ref/doc/uid/TP40009523-CH2-SW8)的解释是：
 
 	> Warning: To prevent unsolicited downloads over cellular networks at the user’s expense, embedded media cannot be played automatically in Safari on iOS—the user always initiates playback.
 
+    iOS10+，策略已发生改变，允许静音下自动播放[webkit官方博客](https://webkit.org/blog/6784/new-video-policies-for-ios)
 
 * 全屏播放受限
 
-	插件的全屏按钮只是触发浏览器（或客户端浏览器内核）全屏事件，是否能全屏要浏览器或客户端自身实现。
+	插件的全屏按钮只是触发浏览器（或客户端浏览器内核）全屏事件，是否能全屏要看浏览器或客户端自身实现。
 
 * 黑边
 
