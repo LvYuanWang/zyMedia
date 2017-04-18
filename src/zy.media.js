@@ -117,7 +117,7 @@
 
 	// Get style
 	function _css(el, property) {
-		return parseInt(el.style[property] || getComputedStyle(el, null).getPropertyValue(property))
+		return parseInt(getComputedStyle(el, null).getPropertyValue(property))
 	}
 
 	// Has Class
@@ -945,9 +945,12 @@
 
 			// Adjust controls when orientation change, 500ms for Sumsung tablet
 			window.addEventListener('orientationchange', function() {
-				setTimeout(function() {
-					t.setPlayerSize()
-				}, 500)
+				// Ignore orientation in fullscreen status
+				if(!isInFullScreenMode() && !t.isFullScreen){
+					setTimeout(function() {
+						t.setPlayerSize()
+					}, 500)
+				}
 			});
 
 			t.media.addEventListener('ended', function(e) {
