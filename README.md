@@ -38,6 +38,10 @@ zyMedia是一款基于HTML5原生multimedia、自定义UI的多媒体播放器�
 
 ```
 
+    zymedia是做批量处理用的，单独设置用每个音视频上的data-config，
+    每个音视频的src可随时替换（比如document.querySelector('video').src = 'test.mp4'），容器尺寸会保持不变
+
+
 ## 参数说明
 * type: ''<br>
 指定媒体类型，默认空
@@ -151,6 +155,10 @@ zyMedia是一款基于HTML5原生multimedia、自定义UI的多媒体播放器�
 * 黑边
 
 	通常是poster图的尺寸比例和视频尺寸比例不一致，如果不能自己裁剪图的话，可以把poster图单拿出来，盖在视频上。
+
+* 音视频格式支持
+    
+    插件使用的浏览器自身的解码，具体解码要看浏览器自身对格式支持情况和播放时环境，通常浏览器支持情况见[维基百科](https://en.wikipedia.org/wiki/HTML5_video)，[MDN](https://developer.mozilla.org/en-US/docs/Web/HTML/Supported_media_formats)。
 
 
 
