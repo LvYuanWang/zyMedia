@@ -74,8 +74,18 @@
 
 		// Detect playsinline
 		t.isPlaysInline = matchMedia('(-webkit-video-playable-inline)').matches;
-		// Vendor for no big Play button
-		t.isVendorBigPlay = /iphone/i.test(ua) && !window.MSStream;
+		// Vendor for no big play button
+		t.isVendorBigPlay = (function() {
+			if (window.MSStream) {
+				return false
+			}
+			// iPhone iOS 9- has system big play button
+			var iPhoneVersion = ua.match(/iPhone OS (\d+)_?/i);
+			if (iPhoneVersion && (iPhoneVersion[1] < 10)) {
+				return true
+			}
+			return false
+		})();
 		// Vendor for no controls bar
 		t.isVendorControls = /baidu/i.test(ua);
 		// Prefix of current working browser
@@ -946,7 +956,7 @@
 			// Adjust controls when orientation change, 500ms for Sumsung tablet
 			window.addEventListener('orientationchange', function() {
 				// Ignore orientation in fullscreen status
-				if(!isInFullScreenMode() && !t.isFullScreen){
+				if (!isInFullScreenMode() && !t.isFullScreen) {
 					setTimeout(function() {
 						t.setPlayerSize()
 					}, 500)
