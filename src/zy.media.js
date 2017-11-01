@@ -79,9 +79,9 @@
 			if (window.MSStream) {
 				return false
 			}
-			// iPhone iOS 9- has system big play button
+			// iPhone iOS 10- has system big play button
 			var iPhoneVersion = ua.match(/iPhone OS (\d+)_?/i);
-			if (iPhoneVersion && (iPhoneVersion[1] < 10)) {
+			if (iPhoneVersion && (iPhoneVersion[1] < 11)) {
 				return true
 			}
 			return false
