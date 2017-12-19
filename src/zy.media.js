@@ -633,6 +633,8 @@
 			var _W_HANDLE_HALF = _css(t.handle, 'width') / 2;
 
 			var pointerMove = function(e) {
+				e.preventDefault();
+
 				var _time = 0;
 				var x;
 
@@ -663,40 +665,37 @@
 			};
 			// Handle clicks
 			if (zyMedia.features.hasTouch) {
-				t.slider.addEventListener('touchstart', function(e) {
+				timeline.addEventListener('touchstart', function(e) {
 					isPointerDown = true;
+					t.media.pause();
 					pointerMove(e);
 					_X = t.slider.offsetLeft;
 					_W = _css(t.slider, 'width');
-					t.slider.addEventListener('touchmove', pointerMove);
-					t.slider.addEventListener('touchend', function(e) {
+					timeline.addEventListener('touchmove', pointerMove);
+					timeline.addEventListener('touchend', function(e) {
+						pointerMove(e);
 						isPointerDown = false;
-						t.slider.removeEventListener('touchmove', pointerMove)
+						t.media.play();
+						timeline.removeEventListener('touchmove', pointerMove)
 					});
 				});
 			} else {
-				t.slider.addEventListener('mousedown', function(e) {
+				timeline.addEventListener('mousedown', function(e) {
 					isPointerDown = true;
+					t.media.pause();
 					pointerMove(e);
 					_X = t.slider.offsetLeft;
 					_W = _css(t.slider, 'width');
-					t.slider.addEventListener('mousemove', pointerMove);
-					t.slider.addEventListener('mouseup', function(e) {
+					timeline.addEventListener('mousemove', pointerMove);
+					timeline.addEventListener('mouseup', function(e) {
+						pointerMove(e);
 						isPointerDown = false;
+						t.media.play();
 						t.slider.addEventListener('mousemove', pointerMove)
 					});
 				});
 			}
 
-			t.slider.addEventListener('mouseenter', function(e) {
-				t.slider.addEventListener('mousemove', pointerMove);
-			});
-
-			t.slider.addEventListener('mouseleave', function(e) {
-				if (!isPointerDown) {
-					t.slider.removeEventListener('mousemove', pointerMove)
-				}
-			});
 
 			//4Hz ~ 66Hz, no longer than 250ms
 			t.media.addEventListener('timeupdate', function(e) {
