@@ -628,7 +628,7 @@
 			t.handle = t.slider.children[3];
 
 			var isPointerDown = false;
-			var _X = t.slider.offsetLeft;
+			var _X = t.slider.getBoundingClientRect().left;
 			var _W = _css(t.slider, 'width');
 			var _W_HANDLE_HALF = _css(t.handle, 'width') / 2;
 
@@ -669,7 +669,7 @@
 					isPointerDown = true;
 					t.media.pause();
 					pointerMove(e);
-					_X = t.slider.offsetLeft;
+					_X = t.slider.getBoundingClientRect().left;
 					_W = _css(t.slider, 'width');
 					timeline.addEventListener('touchmove', pointerMove);
 					timeline.addEventListener('touchend', function(e) {
@@ -684,7 +684,7 @@
 					isPointerDown = true;
 					t.media.pause();
 					pointerMove(e);
-					_X = t.slider.offsetLeft;
+					_X = t.slider.getBoundingClientRect().left;
 					_W = _css(t.slider, 'width');
 					timeline.addEventListener('mousemove', pointerMove);
 					timeline.addEventListener('mouseup', function(e) {
