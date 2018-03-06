@@ -676,6 +676,7 @@
 						pointerMove(e);
 						isPointerDown = false;
 						t.media.play();
+						t.media.isUserClick = true;
 						timeline.removeEventListener('touchmove', pointerMove)
 					});
 				});
@@ -691,6 +692,7 @@
 						pointerMove(e);
 						isPointerDown = false;
 						t.media.play();
+						t.media.isUserClick = true;
 						t.slider.addEventListener('mousemove', pointerMove)
 					});
 				});
