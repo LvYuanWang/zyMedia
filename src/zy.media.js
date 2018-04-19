@@ -74,20 +74,20 @@
 
 		// Detect playsinline
 		t.isPlaysInline = matchMedia('(-webkit-video-playable-inline)').matches;
+		var iPhoneVersion = ua.match(/iPhone OS (\d+)_?/i);
 		// Vendor for no big play button
 		t.isVendorBigPlay = (function() {
 			if (window.MSStream) {
 				return false
 			}
 			// iPhone iOS 10- has system big play button
-			var iPhoneVersion = ua.match(/iPhone OS (\d+)_?/i);
 			if (iPhoneVersion && (iPhoneVersion[1] < 11)) {
 				return true
 			}
 			return false
 		})();
 		// Vendor for no controls bar
-		t.isVendorControls = /baidu/i.test(ua);
+		t.isVendorControls = /baidu/i.test(ua) || (iPhoneVersion && iPhoneVersion[1] == 11);
 		// Prefix of current working browser
 
 		t.nativeFullscreenPrefix = (function() {
@@ -355,7 +355,10 @@
 
 		if (t.options.nativeControls || zyMedia.features.isVendorControls) {
 			// Use native controls
-			t.media.setAttribute('controls', 'controls')
+			t.media.setAttribute('controls', 'controls');
+			if (zyMedia.features.isPlaysInline) {
+				t.media.setAttribute('playsinline', '')
+			}
 		} else {
 			var src = t.media.getAttribute('src');
 			src = src === '' ? null : src;
