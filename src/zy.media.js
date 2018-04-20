@@ -357,7 +357,6 @@
 			// Use native controls
 			t.media.setAttribute('controls', 'controls');
 			if (zyMedia.features.isPlaysInline) {
-				t.media.setAttribute('playsinline', '')
 			}
 		} else {
 			var src = t.media.getAttribute('src');
