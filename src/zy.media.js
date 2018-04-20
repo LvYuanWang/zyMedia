@@ -357,6 +357,9 @@
 			// Use native controls
 			t.media.setAttribute('controls', 'controls');
 			if (zyMedia.features.isPlaysInline) {
+				t.media.setAttribute('playsinline', '');
+				// reset position: absolute -> relative
+				t.media.style.position = 'relative'
 			}
 		} else {
 			var src = t.media.getAttribute('src');
