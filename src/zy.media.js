@@ -80,8 +80,8 @@
 			if (window.MSStream) {
 				return false
 			}
-			// iPhone iOS 10- has system big play button
-			if (iPhoneVersion && (iPhoneVersion[1] < 11)) {
+			// Assume iPhone has system big play button with all iOS versions
+			if (iPhoneVersion) {
 				return true
 			}
 			return false
