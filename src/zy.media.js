@@ -72,22 +72,23 @@
 		t.hasTouch = 'ontouchstart' in window;
 		t.supportsCanPlayType = typeof v.canPlayType !== 'undefined';
 
-		// Detect playsinline
+		// Detect playsinline. False in iOS 11 UIWebView
 		t.isPlaysInline = matchMedia('(-webkit-video-playable-inline)').matches;
-		var iPhoneVersion = ua.match(/iPhone OS (\d+)_?/i);
+		t.iPhoneVersion = ua.match(/iPhone OS (\d+)_?/i);
 		// Vendor for no big play button
 		t.isVendorBigPlay = (function() {
 			if (window.MSStream) {
 				return false
 			}
 			// Assume iPhone has system big play button with all iOS versions
-			if (iPhoneVersion) {
+			if (t.iPhoneVersion) {
 				return true
 			}
 			return false
 		})();
+
 		// Vendor for no controls bar
-		t.isVendorControls = /baidu/i.test(ua) || (iPhoneVersion && iPhoneVersion[1] == 11);
+		t.isVendorControls = /baidu/i.test(ua);
 		// Prefix of current working browser
 
 		t.nativeFullscreenPrefix = (function() {
@@ -344,9 +345,9 @@
 			}
 		} catch (exp) {}
 
-		// Autoplay be disabled
-		if (t.options.autoplay) {
-			t.options.autoplay = !zyMedia.features.isVendorAutoplay
+		// Set preload is auto for media can't play in iOS 11 UIWebView
+		if (t.options.preload == 'none' && zyMedia.features.iPhoneVersion && (zyMedia.features.iPhoneVersion[1] == 11)) {
+			t.options.preload = 'auto'
 		}
 
 		if (!t.isVideo) {
@@ -549,7 +550,7 @@
 
 			t.media.setAttribute('preload', t.options.preload);
 			// iOS's playsinline, https://webkit.org/blog/6784/new-video-policies-for-ios/
-			if (t.isPlaysInline) {
+			if (zyMedia.features.isPlaysInline) {
 				t.media.setAttribute('playsinline', '')
 			}
 			t.container.querySelector('.zy_wrap').appendChild(t.media);
@@ -871,7 +872,7 @@
 			// Controls fade
 			if (t.isVideo) {
 				if (zyMedia.features.hasTouch) {
-					t.media.addEventListener('click', function() {
+					t.media.addEventListener('touchend', function() {
 						// Toggle controls
 						if (t.isControlsVisible) {
 							t.hideControls()
