@@ -637,6 +637,7 @@
 
 			var pointerMove = function(e) {
 				e.preventDefault();
+				e.stopPropagation();
 
 				var _time = 0;
 				var x;
