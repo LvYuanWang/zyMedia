@@ -1,4 +1,10 @@
 body { margin: 0 }
+/* Hide iOS controls */
+video::-webkit-media-controls-panel { -webkit-appearance: none; display: none !important }
+video::-webkit-media-controls-play-button { -webkit-appearance: none; display: none !important }
+video::-webkit-media-controls-start-playback-button { -webkit-appearance: none; display: none !important }
+/* opacity:0 is for fix controls bar display background in iOS 10.0.1 UIWebView */
+video::-webkit-media-controls { opacity: 0; -webkit-appearance: none; display: none !important }
 
 /* zy.media style */
 .zy_media { background: #000; position: relative }

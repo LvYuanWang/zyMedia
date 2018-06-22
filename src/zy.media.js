@@ -80,17 +80,14 @@
 			if (window.MSStream) {
 				return false
 			}
-			// Assume iPhone has system big play button with all iOS versions
-			if (t.iPhoneVersion) {
-				return true
-			}
+
 			return false
 		})();
 
 		// Vendor for no controls bar
 		t.isVendorControls = /baidu/i.test(ua);
-		// Prefix of current working browser
 
+		// Prefix of current working browser
 		t.nativeFullscreenPrefix = (function() {
 			if (v.requestFullScreen) {
 				return '';
