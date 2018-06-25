@@ -823,6 +823,9 @@
 
 			t.media.addEventListener('pause', function() {
 				bigPlay.style.display = ''
+				// Hide loading and buffering when paused
+				loading.style.display = 'none';
+				t.buffering.style.display = 'none';
 			});
 
 			t.media.addEventListener('waiting', function() {
