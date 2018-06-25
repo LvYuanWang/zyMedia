@@ -974,10 +974,12 @@
 				if (t.options.autoLoop) {
 					t.media.play()
 				} else {
-					// Fixing an Android stock browser bug, where "seeked" isn't fired correctly after ending the video and jumping to the beginning
 					if (t.isVideo) {
 						setTimeout(function() {
-							t.container.querySelector('.dec_loading').style.display = 'none'
+							// Fixing an Android stock browser bug, where "seeked" isn't fired correctly after ending the video and jumping to the beginning
+							t.container.querySelector('.dec_loading').style.display = 'none';
+							// Show big play button after "ended" -> "paused" -> "seeking" -> "seeked"
+							t.container.querySelector('.dec_play').style.display = ''
 						}, 20)
 					}
 
