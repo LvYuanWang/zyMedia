@@ -574,6 +574,8 @@
 				t.media.isUserClick = true;
 
 				if (t.media.paused) {
+					// Allow this to play video later
+					t.media.load();
 					t.media.play();
 					// Controls bar auto hide after 3s
 					if (!t.media.paused && !t.options.alwaysShowControls) {
@@ -786,6 +788,8 @@
 					// For some device trigger 'play' event 
 					t.media.isUserClick = true;
 
+					// Allow this to play video later
+					t.media.load();
 					t.media.play();
 					// Controls bar auto hide after 3s
 					if (!t.media.paused && !t.options.alwaysShowControls) {
