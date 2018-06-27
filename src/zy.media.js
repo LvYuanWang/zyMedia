@@ -57,7 +57,9 @@
 		// Sucess callback
 		success: null,
 		// Error callback
-		error: null
+		error: null,
+		// ux before play，media will can't play if return true
+		beforePlay: null
 	};
 
 
@@ -576,7 +578,15 @@
 				if (t.media.paused) {
 					// Allow this to play video later
 					t.media.load();
+
+					if (typeof t.options.beforePlay === 'function') {
+						if (t.options.beforePlay(t.media)) {
+							return
+						}
+					}
+
 					t.media.play();
+
 					// Controls bar auto hide after 3s
 					if (!t.media.paused && !t.options.alwaysShowControls) {
 						t.setControlsTimer(3000)
@@ -790,6 +800,13 @@
 
 					// Allow this to play video later
 					t.media.load();
+
+					if (typeof t.options.beforePlay === 'function') {
+						if (t.options.beforePlay(t.media)) {
+							return
+						}
+					}
+
 					t.media.play();
 					// Controls bar auto hide after 3s
 					if (!t.media.paused && !t.options.alwaysShowControls) {
