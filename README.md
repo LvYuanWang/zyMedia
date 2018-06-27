@@ -106,6 +106,9 @@ zyMedia是一款基于HTML5原生multimedia、自定义UI的多媒体播放器�
 * error: null<br>
 实例化错误时的回调，默认无
 
+* beforePlay: null<br>
+点击播放前的交互，默认无，如果函数返回true，将不播放视频
+
 
 ## 已测试移动设备列表
 
