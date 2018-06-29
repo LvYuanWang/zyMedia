@@ -577,7 +577,7 @@
 
 				if (t.media.paused) {
 					// Allow this to play video later
-					t.media.load();
+					// t.media.load();
 
 					if (typeof t.options.beforePlay === 'function') {
 						if (t.options.beforePlay(t.media)) {
@@ -799,7 +799,7 @@
 					t.media.isUserClick = true;
 
 					// Allow this to play video later
-					t.media.load();
+					// t.media.load();
 
 					if (typeof t.options.beforePlay === 'function') {
 						if (t.options.beforePlay(t.media)) {
