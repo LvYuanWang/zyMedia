@@ -4,7 +4,7 @@ video::-webkit-media-controls-panel { -webkit-appearance: none; display: none !i
 video::-webkit-media-controls-play-button { -webkit-appearance: none; display: none !important }
 video::-webkit-media-controls-start-playback-button { -webkit-appearance: none; display: none !important }
 /* opacity:0 is for fix controls bar display background in iOS 10.0.1 UIWebView */
-video::-webkit-media-controls { opacity: 0; -webkit-appearance: none; display: none !important }
+video::-webkit-media-controls, video::-webkit-media-controls-container, video::-webkit-media-controls-enclosure { opacity: 0; -webkit-appearance: none; display: none !important }
 
 /* zy.media style */
 .zy_media { background: #000; position: relative }
@@ -30,7 +30,7 @@ video::-webkit-media-controls { opacity: 0; -webkit-appearance: none; display: n
 }
 .zy_media .dec_loading::before { width: 7px; height: 7px; content: ''; border-radius: 7px; background: #fff; opacity: .8; position: absolute; top: 25px }
 .zy_media .dec_loading::after { width: 48px; height: 48px; content: ''; border-radius: 50px; border: 7px solid #fff; opacity: .2; display: block }
-.zy_media .dec_error { width: 62px; height: 62px; margin-top: -53px; margin-left: -25px; white-space: nowrap; color: #fff; font-size: 12px; text-align: center; position: absolute; top: 50%; left: 50%; }
+.zy_media .dec_error { width: 120px; height: 62px; margin-top: -53px; margin-left: -60px; white-space: nowrap; color: #fff; font-size: 12px; text-align: center; position: absolute; top: 50%; left: 50%; }
 
 /* 控制栏 */
 .zy_controls { height: 44px; background: rgba(0, 0, 0, .55); position: absolute; left: 0; right: 0; bottom: 0; -webkit-transition: bottom .5s; transition: bottom .5s; display: -webkit-box; display: box; display: -webkit-flex; display: flex }

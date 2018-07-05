@@ -576,13 +576,19 @@
 				t.media.isUserClick = true;
 
 				if (t.media.paused) {
-					// Allow this to play video later
-					// t.media.load();
 
 					if (typeof t.options.beforePlay === 'function') {
 						if (t.options.beforePlay(t.media)) {
 							return
 						}
+					}
+
+					if (t.media.isError) {
+						var _currentTime = t.media.currentTime;
+						// Allow this to play video later
+						t.media.load();
+						t.media.isError = false;
+						t.media.currentTime = _currentTime
 					}
 
 					t.media.play();
@@ -786,7 +792,7 @@
 			var error = document.createElement('div');
 			error.className = 'dec_error';
 			error.style.display = 'none';
-			error.innerHTML = '播放异常';
+			error.innerHTML = '播放失败，请重试';
 			t.container.appendChild(error);
 
 			var bigPlay = document.createElement('div');
@@ -798,13 +804,18 @@
 					// For some device trigger 'play' event 
 					t.media.isUserClick = true;
 
-					// Allow this to play video later
-					// t.media.load();
-
 					if (typeof t.options.beforePlay === 'function') {
 						if (t.options.beforePlay(t.media)) {
 							return
 						}
+					}
+
+					if (t.media.isError) {
+						var _currentTime = t.media.currentTime;
+						// Allow this to play video later
+						t.media.load();
+						t.media.isError = false;
+						t.media.currentTime = _currentTime
 					}
 
 					t.media.play();
@@ -829,12 +840,16 @@
 				loading.style.display = 'none';
 				t.buffering.style.display = 'none';
 				error.style.display = 'none';
+
+				clearTimeout(t.media._st)
 			});
 
 			t.media.addEventListener('seeking', function() {
 				loading.style.display = '';
 				bigPlay.style.display = 'none';
 				t.buffering.style.display = '';
+
+				clearTimeout(t.media._st)
 			});
 
 			t.media.addEventListener('seeked', function() {
@@ -847,12 +862,22 @@
 				// Hide loading and buffering when paused
 				loading.style.display = 'none';
 				t.buffering.style.display = 'none';
+
+				clearTimeout(t.media._st)
 			});
 
 			t.media.addEventListener('waiting', function() {
 				loading.style.display = '';
 				bigPlay.style.display = 'none';
+				error.style.display = 'none';
 				t.buffering.style.display = '';
+
+				// Trigger error if waiting time longer than 30s
+				t.media._st = setTimeout(function() {
+					var _event = document.createEvent('Event');
+	                _event.initEvent('error', true, true);
+	                t.media.dispatchEvent(_event)
+				}, 30000)
 			});
 
 			// Don't listen to 'loadeddata' and 'canplay', 
@@ -865,6 +890,9 @@
 				t.buffering.style.display = 'none';
 				t.media.pause();
 				error.style.display = '';
+
+				// For load method when replay
+				t.media.isError = true;
 
 				if (typeof t.options.error == 'function') {
 					t.options.error(e);
