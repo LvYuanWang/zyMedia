@@ -357,10 +357,10 @@
 			// Use native controls
 			t.media.setAttribute('controls', 'controls');
 			if (zyMedia.features.isPlaysInline) {
-				t.media.setAttribute('playsinline', '');
-				// reset position: absolute -> relative
-				t.media.style.position = 'relative'
+				t.media.setAttribute('playsinline', '')
 			}
+			// reset position: absolute -> relative
+		    t.media.style.position = 'relative'
 		} else {
 			var src = t.media.getAttribute('src');
 			src = src === '' ? null : src;
@@ -512,6 +512,8 @@
 			// Make full size
 			t.media.style.width = t.container.style.width = '100%';
 			t.media.style.height = t.container.style.height = '100%';
+			// :-webkit-full-screen style not work in app webview, 乐pro3 Android 6.0.1
+			t.container.style.zIndex = '1001';
 			_addClass(t.fullscreenBtn, 'zy_unfullscreen');
 			t.isFullScreen = true
 		},
@@ -530,6 +532,7 @@
 			t.media.style.width = t.width + 'px';
 			t.container.style.width = '';
 			t.media.style.height = t.container.style.height = t.height + 'px';
+			t.container.style.zIndex = '';
 			_removeClass(t.fullscreenBtn, 'zy_unfullscreen');
 			t.isFullScreen = false
 		},
@@ -863,6 +866,7 @@
 				loading.style.display = 'none';
 				t.buffering.style.display = 'none';
 
+
 				clearTimeout(t.media._st)
 			});
 
@@ -875,8 +879,8 @@
 				// Trigger error if waiting time longer than 30s
 				t.media._st = setTimeout(function() {
 					var _event = document.createEvent('Event');
-	                _event.initEvent('error', true, true);
-	                t.media.dispatchEvent(_event)
+					_event.initEvent('error', true, true);
+					t.media.dispatchEvent(_event)
 				}, 30000)
 			});
 
