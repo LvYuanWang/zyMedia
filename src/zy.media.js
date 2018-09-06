@@ -360,7 +360,7 @@
 				t.media.setAttribute('playsinline', '')
 			}
 			// reset position: absolute -> relative
-		    t.media.style.position = 'relative'
+			t.media.style.position = 'relative'
 		} else {
 			var src = t.media.getAttribute('src');
 			src = src === '' ? null : src;
@@ -439,6 +439,11 @@
 
 		setControlsTimer: function(timeout) {
 			var t = this;
+
+			if (t.options.alwaysShowControls) {
+				return
+			}
+
 			clearTimeout(t.controlsTimer);
 
 			t.controlsTimer = setTimeout(function() {
@@ -597,7 +602,7 @@
 					t.media.play();
 
 					// Controls bar auto hide after 3s
-					if (!t.media.paused && !t.options.alwaysShowControls) {
+					if (!t.media.paused) {
 						t.setControlsTimer(3000)
 					}
 				} else {
@@ -687,6 +692,9 @@
 						t.media.currentTime = _time
 					}
 				}
+
+				// Do not hide controls when drag timeline
+				clearTimeout(t.controlsTimer)
 			};
 			// Handle clicks
 			if (zyMedia.features.hasTouch) {
@@ -702,6 +710,7 @@
 						isPointerDown = false;
 						t.media.play();
 						t.media.isUserClick = true;
+						t.setControlsTimer(3000);
 						timeline.removeEventListener('touchmove', pointerMove)
 					});
 				});
@@ -730,27 +739,33 @@
 			});
 		},
 
-		// Current and duration time 00:00/00:00
-		buildTime: function() {
+		// Current time 00:00/00:00
+		buildCurrentTime: function() {
 			var t = this;
 
 			var time = document.createElement('div');
-			time.className = 'zy_time';
-			time.innerHTML = '<span class="zy_currenttime">' +
-				timeFormat(0, t.options) +
-				'</span>/' +
-				'<span class="zy_duration">' +
-				timeFormat(t.options.duration, t.options) +
-				'</span>';
+			time.className = 'zy_currenttime';
+			time.innerHTML = timeFormat(0, t.options);
 			t.controls.appendChild(time);
 
-			t.currentTime = time.children[0];
-			t.durationDuration = time.children[1];
+			t.currentTime = time;
 
 			//4Hz ~ 66Hz, no longer than 250ms
 			t.media.addEventListener('timeupdate', function() {
 				t.updateTime()
 			});
+		},
+
+		// Duration time 00:00/00:00
+		buildTotalTime: function() {
+			var t = this;
+
+			var time = document.createElement('div');
+			time.className = 'zy_time';
+			time.innerHTML = timeFormat(t.options.duration, t.options);
+			t.controls.appendChild(time);
+
+			t.durationDuration = time;
 		},
 
 		// Fullscreen button
@@ -823,7 +838,7 @@
 
 					t.media.play();
 					// Controls bar auto hide after 3s
-					if (!t.media.paused && !t.options.alwaysShowControls) {
+					if (!t.media.paused) {
 						t.setControlsTimer(3000)
 					}
 				});
@@ -908,7 +923,7 @@
 			var t = this;
 
 			// Build
-			var batch = ['Container', 'Playpause', 'Timeline', 'Time'];
+			var batch = ['Container', 'Playpause', 'CurrentTime', 'Timeline', 'TotalTime'];
 			if (t.options.enableFullscreen && t.isVideo) {
 				batch.push('Fullscreen')
 			}
@@ -933,7 +948,7 @@
 						} else {
 							t.showControls();
 							// Controls bar auto hide after 3s
-							if (!t.media.paused && !t.options.alwaysShowControls) {
+							if (!t.media.paused) {
 								t.setControlsTimer(3000)
 							}
 						}
@@ -951,18 +966,12 @@
 					// Show/hide controls
 					t.container.addEventListener('mouseenter', function() {
 						t.showControls();
-
-						if (!t.options.alwaysShowControls) {
-							t.setControlsTimer(3000)
-						}
+						t.setControlsTimer(3000)
 					});
 
 					t.container.addEventListener('mousemove', function() {
 						t.showControls();
-
-						if (!t.options.alwaysShowControls) {
-							t.setControlsTimer(3000)
-						}
+						t.setControlsTimer(3000)
 					});
 				}
 
