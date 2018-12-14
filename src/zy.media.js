@@ -1026,7 +1026,7 @@
 			// Adjust controls when orientation change, 500ms for Sumsung tablet
 			window.addEventListener('orientationchange', function() {
 				// Ignore orientation in fullscreen status
-				if (!isInFullScreenMode() && !t.isFullScreen) {
+				if (!isInFullScreenMode() && !t.isFullScreen && t.isVideo) {
 					setTimeout(function() {
 						t.setPlayerSize()
 					}, 500)
