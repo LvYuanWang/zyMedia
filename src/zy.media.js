@@ -344,8 +344,8 @@
 			}
 		} catch (exp) {}
 
-		// Set preload is auto for media can't play in iOS 11 UIWebView
-		if (t.options.preload == 'none' && zyMedia.features.iPhoneVersion && (zyMedia.features.iPhoneVersion[1] == 11)) {
+		// Set preload is auto for media can't play in iOS 11+ UIWebView
+		if (t.options.preload == 'none' && zyMedia.features.iPhoneVersion && (zyMedia.features.iPhoneVersion[1] >= 11)) {
 			t.options.preload = 'auto'
 		}
 
