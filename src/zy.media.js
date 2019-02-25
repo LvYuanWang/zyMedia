@@ -44,7 +44,7 @@
 		alwaysShowHours: false,
 		// Hide controls when playing and mouse is not over the video
 		alwaysShowControls: false,
-		// Display the video control
+		// Hide the video control when loading
 		hideVideoControlsOnLoad: false,
 		// Show fullscreen button
 		enableFullscreen: true,

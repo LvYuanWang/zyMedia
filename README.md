@@ -86,7 +86,7 @@ zyMedia是一款基于HTML5原生multimedia、自定义UI的多媒体播放器�
 是否始终显示控制栏，默认否，自动隐藏，true为始终显示
 
 * hideVideoControlsOnLoad: false<br>
-加载时是否显示视频控制栏，默认否，true为显示
+加载时是否隐藏视频控制栏，默认否，true为隐藏
 
 * enableFullscreen: true<br>
 是否显示全屏按钮，默认显示，false为不显示
