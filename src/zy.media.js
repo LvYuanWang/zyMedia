@@ -386,7 +386,7 @@
 			var t = this;
 
 			// Ignore in fullscreen status
-			if(!isInFullScreenMode() && !t.isFullScreen) {
+			if(isInFullScreenMode() || t.isFullScreen) {
 				return
 			}
 
