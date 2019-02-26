@@ -383,8 +383,13 @@
 		isFullScreen: false,
 
 		setPlayerSize: function(width, height) {
-			var t = this;
 
+			// Ignore in fullscreen status
+			if(!isInFullScreenMode() && !t.isFullScreen) {
+				return
+			}
+
+			var t = this;
 			// Set t.width
 			if (width == undefined || width == '100%') {
 				t.width = _css(t.container, 'width')
@@ -1025,8 +1030,7 @@
 
 			// Adjust controls when orientation change, 500ms for Sumsung tablet
 			window.addEventListener('orientationchange', function() {
-				// Ignore orientation in fullscreen status
-				if (!isInFullScreenMode() && !t.isFullScreen && t.isVideo) {
+				if (t.isVideo) {
 					setTimeout(function() {
 						t.setPlayerSize()
 					}, 500)
