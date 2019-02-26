@@ -383,13 +383,13 @@
 		isFullScreen: false,
 
 		setPlayerSize: function(width, height) {
+			var t = this;
 
 			// Ignore in fullscreen status
 			if(!isInFullScreenMode() && !t.isFullScreen) {
 				return
 			}
 
-			var t = this;
 			// Set t.width
 			if (width == undefined || width == '100%') {
 				t.width = _css(t.container, 'width')
