@@ -87,7 +87,7 @@
 		})();
 
 		// Vendor for no controls bar
-		t.isVendorControls = /baidu/i.test(ua);
+		t.isVendorControls = /baidu/i.test(ua) && !/baiduboxapp/i.test(ua);
 
 		// Prefix of current working browser
 		t.nativeFullscreenPrefix = (function() {
