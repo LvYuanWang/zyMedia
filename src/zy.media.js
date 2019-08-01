@@ -3,7 +3,7 @@
  * zy.media.js
  * HTML5 <video> and <audio> native player
  *
- * Copyright 2016-2017, iReader FE(掌阅书城研发--前端组)
+ * Copyright 2016-2019, iReader FE(掌阅书城研发--前端组)
  * License: MIT
  * 
  */
@@ -129,28 +129,14 @@
 	function _css(el, property) {
 		return parseInt(getComputedStyle(el, null).getPropertyValue(property))
 	}
-
-	// Has Class
-	function _hasClass(el, token) {
-		return new RegExp('(\\s|^)' + token + '(\\s|$)').test(el.className)
-	}
-
 	// Add class
 	function _addClass(el, token) {
-		if (el.classList) {
-			el.classList.add(token)
-		} else if (!_hasClass(el, token)) {
-			el.className += '' + token
-		}
+		el.classList.add(token)
 	}
 
 	// Remove class
 	function _removeClass(el, token) {
-		if (el.classList) {
-			el.classList.remove(token)
-		} else if (_hasClass(el, token)) {
-			el.className = el.className.replace(new RegExp('(\\s|^)' + token + '(\\s|$)'), ' ').replace(/^\s+|\s+$/g, '')
-		}
+		el.classList.remove(token)
 	}
 
 	// Get time format
