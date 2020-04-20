@@ -203,7 +203,7 @@
 			return getTypeFromFileExtension(url)
 		} else {
 			// Only return the mime part of the type in case the attribute contains the codec
-			// see http://www.whatwg.org/specs/web-apps/current-work/multipage/video.html#the-source-element
+			// see https://www.whatwg.org/specs/web-apps/current-work/multipage/video.html#the-source-element
 			// `video/mp4; codecs="avc1.42E01E, mp4a.40.2"` becomes `video/mp4`
 			if (type && ~type.indexOf(';')) {
 				return type.substr(0, type.indexOf(';'))
@@ -372,7 +372,7 @@
 			var t = this;
 
 			// Ignore in fullscreen status
-			if(isInFullScreenMode() || t.isFullScreen) {
+			if (isInFullScreenMode() || t.isFullScreen) {
 				return
 			}
 
@@ -420,6 +420,8 @@
 				return;
 
 			t.controls.style.bottom = '-45px';
+
+			t.playbackRateOpts.style.display = 'none'
 
 			if (t.options.mediaTitle) {
 				t.title.style.top = '-35px'
@@ -592,9 +594,9 @@
 
 					t.media.play();
 
-					// Controls bar auto hide after 3s
+					// Controls bar auto hide after 5s
 					if (!t.media.paused) {
-						t.setControlsTimer(3000)
+						t.setControlsTimer(5000)
 					}
 				} else {
 					t.media.pause()
@@ -701,7 +703,7 @@
 						isPointerDown = false;
 						t.media.play();
 						t.media.isUserClick = true;
-						t.setControlsTimer(3000);
+						t.setControlsTimer(5000);
 						timeline.removeEventListener('touchmove', pointerMove)
 					});
 				});
@@ -789,6 +791,37 @@
 			});
 		},
 
+		// PlaybackRate，set playback speed of media
+		buildPlaybackRate:function(){
+			var t = this;
+
+			t.playbackRateBtn = document.createElement('div');
+			t.playbackRateBtn.className = 'zy_playback_rate';
+			t.playbackRateBtn.innerHTML = '<ul class="zy_playback_rate_option"><li>2</li><li>1.5</li><li class="active">1</li><li>0.75</li><li>0.5</li></ul><div class="zy_playback_rate_val">X1</div>';
+			t.controls.appendChild(t.playbackRateBtn);
+
+			t.playbackRateOpts = document.querySelector('.zy_playback_rate_option')
+			t.playbackRateVal = document.querySelector('.zy_playback_rate_val')
+
+			t.playbackRateBtn.addEventListener('click', function() {
+				if(t.playbackRateOpts.style.display !== 'block') {
+					t.playbackRateOpts.style.display = 'block'					
+				} else {
+					t.playbackRateOpts.style.display = 'none'										
+				}
+			})
+
+			t.playbackRateOpts.addEventListener('click', function(e) {
+				var el =  e.target
+				if (el.nodeName === 'LI' && el.className !== 'active') {
+					t.playbackRateVal.textContent = 'X' + el.textContent
+					t.playbackRateOpts.querySelector('.active').className = ''
+					el.className = 'active'
+					t.media.playbackRate = el.textContent
+				}
+			})
+		},
+
 		// bigPlay, loading and error info
 		buildDec: function() {
 			var t = this;
@@ -828,9 +861,9 @@
 					}
 
 					t.media.play();
-					// Controls bar auto hide after 3s
+					// Controls bar auto hide after 5s
 					if (!t.media.paused) {
-						t.setControlsTimer(3000)
+						t.setControlsTimer(5000)
 					}
 				});
 			}
@@ -923,6 +956,10 @@
 				batch.push('Dec')
 			}
 
+			if(t.isVideo){
+				batch.push('PlaybackRate')
+			}
+
 			for (var i = 0; i < batch.length; i++) {
 				try {
 					t['build' + batch[i]]()
@@ -938,9 +975,9 @@
 							t.hideControls()
 						} else {
 							t.showControls();
-							// Controls bar auto hide after 3s
+							// Controls bar auto hide after 5s
 							if (!t.media.paused) {
-								t.setControlsTimer(3000)
+								t.setControlsTimer(5000)
 							}
 						}
 					});
@@ -957,12 +994,12 @@
 					// Show/hide controls
 					t.container.addEventListener('mouseenter', function() {
 						t.showControls();
-						t.setControlsTimer(3000)
+						t.setControlsTimer(5000)
 					});
 
 					t.container.addEventListener('mousemove', function() {
 						t.showControls();
-						t.setControlsTimer(3000)
+						t.setControlsTimer(5000)
 					});
 				}
 

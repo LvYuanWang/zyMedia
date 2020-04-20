@@ -35,7 +35,7 @@ video::-webkit-media-controls, video::-webkit-media-controls-container, video::-
 .zy_media .dec_error { width: 120px; height: 62px; margin-top: -53px; margin-left: -60px; white-space: nowrap; color: #fff; font-size: 12px; text-align: center; position: absolute; top: 50%; left: 50%; }
 
 /* 控制栏 */
-.zy_controls { height: 44px; position: absolute; left: 0; right: 0; bottom: 0; -webkit-transition: bottom .5s; transition: bottom .5s; display: -webkit-box; display: box; display: -webkit-flex; display: flex }
+.zy_controls { height: 44px; position: absolute; left: 0; right: 0; bottom: 0; z-index: 10; -webkit-transition: bottom .5s; transition: bottom .5s; display: -webkit-box; display: box; display: -webkit-flex; display: flex }
 
 /* 播放、暂停按钮 */
 .zy_playpause_btn_play, .zy_playpause_btn_pause { width: 44px; height: 44px; background-position: center; background-repeat: no-repeat; background-size: 7px 8px; position: relative }
@@ -65,3 +65,9 @@ video::-webkit-media-controls, video::-webkit-media-controls-container, video::-
 /* 全屏控制按钮 */
 .zy_fullscreen_btn { width: 38px; height: 44px; background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABoAAAAaBAMAAABbZFH9AAAAFVBMVEUAAAD///////////////////////9Iz20EAAAABnRSTlMAhcTz+f7GdglEAAAASklEQVQY02NQTUtLc2RgYBAB0kEMYUAyGcgzA9KpDGlIcmkMaQkMMMBGPs/NAc5jSWEQFoDzGA0ZaAFQbUC1nTo+Qg0l1BBECV0AMZkjVRJO9QcAAAAASUVORK5CYII=); background-repeat: no-repeat; background-position: center; background-size: 10px 10px }
 .zy_unfullscreen { background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAbCAMAAABY1h8eAAAAgVBMVEUAAAD///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////9d3yJTAAAAKnRSTlMAAQMECw8XHCAhIzdugYWRmpydn6SmxMnX3+Pn6Ovs8PLz9Pb4+fv8/f6584ZkAAAAl0lEQVQoz6XSzQ6CMBAE4K3/FaxSBBUVRK3IvP8DepAmJu1wca5fJpvsrohOhEZ3yBTDBIClmnk1rQlQ2UEdnFAFIFTjOCjBrzL0GhHjANpsvfUjzb6UP7J7v5r6Up2Omwg+/HwsQrx6O0xCrACgWK50xOQM8APXwJ5qA8wt0zswU0xv6KbC1Dy3v6/DT5jKiOZ0ySrN1x8orxmvk2ibBAAAAABJRU5ErkJggg==) }
+
+.zy_playback_rate { width: 60px; margin-right: 6px; text-align: center; position: relative; }
+.zy_playback_rate .zy_playback_rate_val { height: 44px; line-height: 44px; color: #e5e5e5; font-size: 10px; }
+.zy_playback_rate .zy_playback_rate_option { width: 60px; margin: 0; padding: 0; font-size: 12px; color: #fff; border-radius: 2px; background: rgba(0, 0, 0, .6); position: absolute; left: 0; bottom: 44px; list-style: none; display: none; }
+.zy_playback_rate .zy_playback_rate_option li { line-height: 30px; }
+.zy_playback_rate .zy_playback_rate_option li.active { color: #1589FF; }
