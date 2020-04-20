@@ -13,7 +13,7 @@ zyMedia是一款基于HTML5原生multimedia、自定义UI的多媒体播放器�
 
 ## 视频界面展示
 
-<img src="docs/images/video_ui_v1.1.png" style="width:480px" />
+![video ui](docs/images/video_ui_v1.1.png)
 
 
 ## 使用说明
