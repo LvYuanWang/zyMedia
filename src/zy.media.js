@@ -35,6 +35,8 @@
 		audioHeight: 44,
 		// AutoLoop, true for infinite loop, false for rewind to beginning when media ends
 		autoLoop: false,
+		// Show poster again after video ended
+		showPosterAfterEnd: false,
 		// Time format to show. Default 1 for 'mm:ss', 2 for 'm:s'
 		timeFormatType: 1,
 		// Forces the hour marker (##:00:00)
@@ -1146,7 +1148,11 @@
 						}, 20)
 					}
 
-					t.media.pause()
+					if (t.options.showPosterAfterEnd) {
+						t.media.load()
+					} else {
+						t.media.pause()
+					}
 				}
 
 				t.updateTimeline(e)
