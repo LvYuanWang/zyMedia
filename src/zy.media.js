@@ -58,7 +58,9 @@
 		// Error callback
 		error: null,
 		// ux before play，media will can't play if return true
-		beforePlay: null
+		beforePlay: null,
+		// Show playback rate
+		showPlaybackRate: true
 	}
 
 	// Feature detect
@@ -855,7 +857,7 @@
 				'<ul class="zy_playback_rate_option"><li>2</li><li>1.5</li><li class="active">1</li><li>0.75</li><li>0.5</li></ul><div class="zy_playback_rate_val">X1</div>'
 			t.controls.appendChild(t.playbackRateBtn)
 
-			t.playbackRateOpts = document.querySelector(
+			t.playbackRateOpts = t.playbackRateBtn.querySelector(
 				'.zy_playback_rate_option'
 			)
 			t.playbackRateVal = document.querySelector('.zy_playback_rate_val')
@@ -1018,7 +1020,7 @@
 				batch.push('Dec')
 			}
 
-			if (t.isVideo) {
+			if (t.isVideo && t.options.showPlaybackRate) {
 				batch.push('PlaybackRate')
 			}
 
